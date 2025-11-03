@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintingTools.Core", "src\P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintingTools.MacOS", "src\PrintingTools.MacOS\PrintingTools.MacOS.csproj", "{5B0E921C-549B-4C69-BC2F-3BA9B8DD1C30}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintingTools.UI", "src\PrintingTools.UI\PrintingTools.UI.csproj", "{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,7 +75,19 @@ Global
 		{5B0E921C-549B-4C69-BC2F-3BA9B8DD1C30}.Release|x64.Build.0 = Release|Any CPU
 		{5B0E921C-549B-4C69-BC2F-3BA9B8DD1C30}.Release|x86.ActiveCfg = Release|Any CPU
 		{5B0E921C-549B-4C69-BC2F-3BA9B8DD1C30}.Release|x86.Build.0 = Release|Any CPU
-	EndGlobalSection
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Debug|x64.Build.0 = Debug|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Debug|x86.Build.0 = Debug|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Release|x64.ActiveCfg = Release|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Release|x64.Build.0 = Release|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Release|x86.ActiveCfg = Release|Any CPU
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C}.Release|x86.Build.0 = Release|Any CPU
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
@@ -82,5 +96,6 @@ Global
 		{14F1F38D-3CC1-4964-9A6D-6C257053A63A} = {5D20AA90-6969-D8BD-9DCD-8634F4692FDA}
 		{C0BA282E-8AD9-4D16-9CE5-881B530E489F} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{5B0E921C-549B-4C69-BC2F-3BA9B8DD1C30} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-	EndGlobalSection
+		{4A9F1E50-ECBA-4B6A-BFFD-6C55C1D9791C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+EndGlobalSection
 EndGlobal

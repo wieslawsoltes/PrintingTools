@@ -8,20 +8,18 @@ public sealed class PrintPreviewModel : IDisposable
 {
     private bool _disposed;
 
-    public PrintPreviewModel(IReadOnlyList<PrintPage> pages, IReadOnlyList<RenderTargetBitmap> images)
+    public PrintPreviewModel(IReadOnlyList<PrintPage> pages, IReadOnlyList<RenderTargetBitmap>? images = null, byte[]? vectorDocument = null)
     {
         Pages = pages ?? throw new ArgumentNullException(nameof(pages));
-        Images = images ?? throw new ArgumentNullException(nameof(images));
-
-        if (Pages.Count != Images.Count)
-        {
-            throw new ArgumentException("The number of preview images must match the number of pages.", nameof(images));
-        }
+        Images = images ?? Array.Empty<RenderTargetBitmap>();
+        VectorDocument = vectorDocument;
     }
 
     public IReadOnlyList<PrintPage> Pages { get; }
 
     public IReadOnlyList<RenderTargetBitmap> Images { get; }
+
+    public byte[]? VectorDocument { get; }
 
     public void Dispose()
     {

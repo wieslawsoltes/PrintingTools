@@ -54,6 +54,13 @@ typedef struct
     int count;
 } PrintingToolsStringArray;
 
+typedef struct
+{
+    const void* pdfBytes;
+    int length;
+    int showPrintPanel;
+} PrintingToolsVectorDocument;
+
 @interface PrintingToolsOperationHost : NSObject
 @property (nonatomic, assign) void* managedContext;
 @property (nonatomic, assign) PrintingToolsManagedCallbacks callbacks;
@@ -573,6 +580,16 @@ void PrintingTools_DrawBitmap(
     CGContextRestoreGState(context);
 
     CGImageRelease(image);
+}
+
+int PrintingTools_RunVectorPreview(const PrintingToolsVectorDocument* document)
+{
+    if (document == NULL || document->pdfBytes == NULL || document->length <= 0)
+    {
+        return 0;
+    }
+
+    return PrintingTools_RunPdfPrintOperation(document->pdfBytes, document->length, document->showPrintPanel);
 }
 
 PrintingToolsStringArray PrintingTools_GetPrinterNames(void)

@@ -12,8 +12,9 @@
 - `PrintDocument` now composes multiple `IPrintPageEnumerator` instances (see `src/PrintingTools.Core/PrintDocument.cs`) and supports per-page metadata via `PrintPageSettings`.
 - `PrintOptions`, `PrintPageRange`, and `PrintServiceRegistry` provide session/job configuration (now including `PdfOutputPath` for headless export flows) and lazy creation of shared `IPrintManager` / `IPrintAdapterResolver` instances.
 - `PrintDiagnostics` (`src/PrintingTools.Core/PrintDiagnostics.cs`) exposes structured diagnostic events wired through `PrintingToolsOptions.DiagnosticSink`; the macOS backend now raises per-page render traces and failure details to aid debugging.
+- Vector rendering abstractions now live behind `IVectorPageRenderer` (`src/PrintingTools.Core/Rendering/IVectorPageRenderer.cs`); the macOS implementation (`SkiaVectorPageRenderer`) feeds both managed export and the native preview bridge.
 - `MacPrinterCatalog` (`src/PrintingTools.MacOS/MacPrinterCatalog.cs`) surfaces installed printer names through the native bridge so sample/tooling UIs can offer picker experiences without duplicating interop code.
-- Vector work will evolve `SkiaPdfExporter` into a reusable renderer consumed by both preview and macOS adapters; friend access via Avalonia’s `ExternalConsumers.props` already grants the necessary internals for an in-process prototype.
+- `MacPrintUtilities` (`src/PrintingTools.MacOS/MacPrintUtilities.cs`) exposes helpers for launching vector previews from managed code, wrapping the native bridge for sample and tooling scenarios.
 - `PrintPreviewModel` (`src/PrintingTools.Core/PrintPreviewModel.cs`) packages enumerated `PrintPage` instances for preview consumption.
 - `DefaultPrintPaginator` (`src/PrintingTools.Core/Pagination/DefaultPrintPaginator.cs`) now enriches pages with `PrintPageMetrics` and leverages `PrintPaginationUtilities.ExpandPage` to slice tall visuals; advanced flow layout remains future work.
 - `PrintingTools.MacOS` project hosts `MacPrintAdapter`/factory types that gate creation on runtime OS detection (`src/PrintingTools.MacOS/MacPrintAdapter.cs`).

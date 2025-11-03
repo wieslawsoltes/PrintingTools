@@ -5,17 +5,18 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Skia.Helpers;
 using PrintingTools.Core;
+using PrintingTools.Core.Rendering;
 using SkiaSharp;
 
 namespace PrintingTools.MacOS.Rendering;
 
-internal static class SkiaPdfExporter
+internal sealed class SkiaVectorPageRenderer : IVectorPageRenderer
 {
     private const double DipsPerInch = 96d;
     private const double PointsPerInch = 72d;
-    private const string DiagnosticsCategory = "SkiaPdfExporter";
+    private const string DiagnosticsCategory = "SkiaVectorPageRenderer";
 
-    public static void Export(string path, IReadOnlyList<PrintPage> pages)
+    public void ExportPdf(string path, IReadOnlyList<PrintPage> pages)
     {
         if (pages.Count == 0)
         {
@@ -36,15 +37,11 @@ internal static class SkiaPdfExporter
         using var stream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read);
         using var document = SKDocument.CreatePdf(stream) ?? throw new InvalidOperationException("Unable to create PDF document via Skia.");
 
-        foreach (var page in pages)
-        {
-            RenderPage(document, page);
-        }
-
+        RenderDocument(document, pages);
         document.Close();
     }
 
-    public static byte[] CreatePdfBytes(IReadOnlyList<PrintPage> pages)
+    public byte[] CreatePdfBytes(IReadOnlyList<PrintPage> pages)
     {
         if (pages.Count == 0)
         {
@@ -54,16 +51,7 @@ internal static class SkiaPdfExporter
         using var wStream = new SKDynamicMemoryWStream();
         using (var document = SKDocument.CreatePdf(wStream) ?? throw new InvalidOperationException("Unable to create PDF document via Skia."))
         {
-            for (var i = 0; i < pages.Count; i++)
-            {
-                var tag = (pages[i].Visual as Control)?.Tag;
-                PrintDiagnostics.Report(
-                    DiagnosticsCategory,
-                    $"Rendering PDF page {i}",
-                    context: new { Index = i, Tag = tag });
-                RenderPage(document, pages[i]);
-            }
-
+            RenderDocument(document, pages);
             document.Close();
         }
 
@@ -71,7 +59,15 @@ internal static class SkiaPdfExporter
         return data?.ToArray() ?? Array.Empty<byte>();
     }
 
-    private static void RenderPage(SKDocument document, PrintPage page)
+    private static void RenderDocument(SKDocument document, IReadOnlyList<PrintPage> pages)
+    {
+        for (var i = 0; i < pages.Count; i++)
+        {
+            RenderPage(document, pages[i], i);
+        }
+    }
+
+    private static void RenderPage(SKDocument document, PrintPage page, int index)
     {
         var metrics = page.Metrics ?? PrintPageMetrics.Create(page.Visual, page.Settings);
 
@@ -85,7 +81,15 @@ internal static class SkiaPdfExporter
         canvas.Scale(dipsToPoints);
         canvas.Translate((float)metrics.ContentRect.X, (float)metrics.ContentRect.Y);
         canvas.Scale((float)metrics.ContentScale);
-        canvas.Translate((float)(-metrics.ContentOffset.X - metrics.VisualBounds.X), (float)(-metrics.ContentOffset.Y - metrics.VisualBounds.Y));
+        canvas.Translate(
+            (float)(-metrics.ContentOffset.X - metrics.VisualBounds.X),
+            (float)(-metrics.ContentOffset.Y - metrics.VisualBounds.Y));
+
+        var tag = (page.Visual as Control)?.Tag;
+        PrintDiagnostics.Report(
+            DiagnosticsCategory,
+            $"Rendering PDF page {index}",
+            context: new { Index = index, Tag = tag });
 
         DrawingContextHelper.RenderAsync(canvas, page.Visual, page.Visual.Bounds, metrics.Dpi).GetAwaiter().GetResult();
 

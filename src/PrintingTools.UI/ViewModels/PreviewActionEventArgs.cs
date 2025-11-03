@@ -1,6 +1,6 @@
 using System;
 
-namespace AvaloniaSample.ViewModels;
+namespace PrintingTools.UI.ViewModels;
 
 public sealed class PreviewActionEventArgs : EventArgs
 {

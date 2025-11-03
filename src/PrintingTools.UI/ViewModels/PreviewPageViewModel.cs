@@ -1,24 +1,20 @@
 using System;
 using Avalonia;
-using Avalonia.Media.Imaging;
 using PrintingTools.Core;
 
-namespace AvaloniaSample.ViewModels;
+namespace PrintingTools.UI.ViewModels;
 
 public sealed class PreviewPageViewModel
 {
-    public PreviewPageViewModel(int number, PrintPage page, RenderTargetBitmap image)
+    public PreviewPageViewModel(int number, PrintPage page)
     {
         Number = number;
-        Page = page;
-        Image = image;
+        Page = page ?? throw new ArgumentNullException(nameof(page));
     }
 
     public int Number { get; }
 
     public PrintPage Page { get; }
-
-    public RenderTargetBitmap Image { get; }
 
     public Size PageSize => Page.Metrics?.PageSize ?? Page.Visual.Bounds.Size;
 

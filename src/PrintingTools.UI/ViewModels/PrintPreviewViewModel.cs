@@ -4,10 +4,9 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Avalonia.Media.Imaging;
 using PrintingTools.Core;
 
-namespace AvaloniaSample.ViewModels;
+namespace PrintingTools.UI.ViewModels;
 
 public sealed class PrintPreviewViewModel : INotifyPropertyChanged
 {
@@ -19,11 +18,11 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
         Printers.CollectionChanged += OnPrintersChanged;
     }
 
-    public PrintPreviewViewModel(IReadOnlyList<PrintPage> pages, IReadOnlyList<RenderTargetBitmap> images) : this()
+    public PrintPreviewViewModel(IReadOnlyList<PrintPage> pages, byte[]? vectorDocument = null) : this()
     {
-        for (var i = 0; i < pages.Count && i < images.Count; i++)
+        for (var i = 0; i < pages.Count; i++)
         {
-            Pages.Add(new PreviewPageViewModel(i + 1, pages[i], images[i]));
+            Pages.Add(new PreviewPageViewModel(i + 1, pages[i]));
         }
 
         if (Pages.Count > 0)
@@ -31,6 +30,9 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
             SelectedPage = Pages[0];
             SelectedPageNumber = 1;
         }
+
+        VectorDocument = vectorDocument;
+        OnPropertyChanged(nameof(HasVectorDocument));
 
         OnPropertyChanged(nameof(PageCount));
     }
@@ -47,6 +49,10 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
     }
 
     public bool HasPrinters => Printers.Count > 0;
+
+    public byte[]? VectorDocument { get; }
+
+    public bool HasVectorDocument => VectorDocument is { Length: > 0 };
 
     private double _zoom = 1.0;
     public double Zoom
@@ -95,11 +101,6 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
 
     public void GoToNextPage()
     {
-        if (Pages.Count == 0)
-        {
-            return;
-        }
-
         if (SelectedPageNumber < Pages.Count)
         {
             SelectedPageNumber += 1;
@@ -108,11 +109,6 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
 
     public void GoToPreviousPage()
     {
-        if (Pages.Count == 0)
-        {
-            return;
-        }
-
         if (SelectedPageNumber > 1)
         {
             SelectedPageNumber -= 1;

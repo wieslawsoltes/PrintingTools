@@ -27,6 +27,9 @@ internal static class PrintingToolsInterop
     [DllImport(LibraryName, EntryPoint = "PrintingTools_RunPdfPrintOperation")]
     public static extern int RunPdfPrintOperation(byte[] pdfData, int length, int showPrintPanel);
 
+    [DllImport(LibraryName, EntryPoint = "PrintingTools_RunVectorPreview")]
+    public static extern int RunVectorPreview(ref VectorDocument document);
+
     [DllImport(LibraryName, EntryPoint = "PrintingTools_ConfigurePrintOperation")]
     public static extern void ConfigurePrintOperation(IntPtr operation, ref PrintSettings settings);
 
@@ -118,5 +121,13 @@ internal static class PrintingToolsInterop
         public IntPtr Items;
         public IntPtr Lengths;
         public int Count;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct VectorDocument
+    {
+        public IntPtr PdfBytes;
+        public int Length;
+        public int ShowPrintPanel;
     }
 }

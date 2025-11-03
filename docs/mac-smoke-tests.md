@@ -8,6 +8,7 @@ Validate the end-to-end macOS printing experience on physical hardware (M3 Pro
 | Scenario | Description | Expected Outcome | Diagnostics |
 |----------|-------------|------------------|-------------|
 | Native preview | Launch print preview from sample app with default printer. | `NSPrintOperation` dialog opens with correct page count/thumbnails. | `PrintDiagnostics` emits page metrics + render traces (`MacPrintAdapter`). |
+| Vector preview | Enable `UseVectorRenderer` in sample and trigger the sample's Vector Preview action. | Preview renders via vector bridge (no raster artifacts). | `MacPrintAdapter` logs vector path message; `PrintingTools_RunVectorPreview` invoked. |
 | Physical print | Submit job to a network printer from preview toolbar. | Printer receives job, paper margins match preview. | Capture `PrintDiagnostics` output + system print log. |
 | PDF export | Export via preview toolbar and standalone button. | PDF file saved to Desktop/Documents with correct pages. | `SkiaPdfExporter` events show page indices + success. |
 | Printer selection | Switch between at least two printers and print. | Options persist between preview and main window. | Diagnostics include selected printer metadata. |

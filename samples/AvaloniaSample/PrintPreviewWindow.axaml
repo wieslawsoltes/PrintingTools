@@ -2,7 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:AvaloniaSample.ViewModels"
+        xmlns:vm="clr-namespace:PrintingTools.UI.ViewModels;assembly=PrintingTools.UI"
+        xmlns:controls="clr-namespace:PrintingTools.UI.Controls;assembly=PrintingTools.UI"
         x:Class="AvaloniaSample.PrintPreviewWindow"
         Width="900" Height="720"
         Title="Print Preview"
@@ -30,6 +31,9 @@
             <Button Content="Refresh" Click="OnRefreshPrintersClicked"/>
             <Button Content="Print" Click="OnPrintClicked" IsEnabled="{Binding HasPrinters}"/>
             <Button Content="Export PDF" Click="OnExportClicked"/>
+            <Button Content="Vector Preview"
+                    Click="OnVectorPreviewClicked"
+                    IsVisible="{Binding HasVectorDocument}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="16,0,16,12">
@@ -65,10 +69,7 @@
                             </LayoutTransformControl.LayoutTransform>
                             <Grid Width="{Binding PageSize.Width}" Height="{Binding PageSize.Height}">
                                 <Border Background="#FFF" BorderBrush="#DDD" BorderThickness="1" CornerRadius="6"/>
-                                <Image Source="{Binding Image}"
-                                       Stretch="Fill"
-                                       HorizontalAlignment="Stretch"
-                                       VerticalAlignment="Stretch"/>
+                                <controls:PrintPageVectorView PrintPage="{Binding Page}"/>
                                 <Border BorderBrush="#4CAF50"
                                         BorderThickness="1"
                                         CornerRadius="4"

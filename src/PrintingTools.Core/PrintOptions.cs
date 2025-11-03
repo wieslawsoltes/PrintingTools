@@ -18,6 +18,11 @@ public sealed class PrintOptions
 
     public bool UseManagedPdfExporter { get; set; }
 
+    /// <summary>
+    /// When true, the adapter should prefer vector (PDF) rendering over raster surfaces where supported.
+    /// </summary>
+    public bool UseVectorRenderer { get; set; }
+
     public PrintOptions Clone() =>
         new()
         {
@@ -27,7 +32,8 @@ public sealed class PrintOptions
             PageRange = PageRange,
             CollectPreviewFirst = CollectPreviewFirst,
             PdfOutputPath = PdfOutputPath,
-            UseManagedPdfExporter = UseManagedPdfExporter
+            UseManagedPdfExporter = UseManagedPdfExporter,
+            UseVectorRenderer = UseVectorRenderer
         };
 }
 

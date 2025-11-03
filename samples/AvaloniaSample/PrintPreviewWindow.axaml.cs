@@ -3,7 +3,7 @@ using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using AvaloniaSample.ViewModels;
+using PrintingTools.UI.ViewModels;
 
 namespace AvaloniaSample;
 
@@ -91,4 +91,9 @@ public partial class PrintPreviewWindow : Window
 
     private void OnRefreshPrintersClicked(object? sender, RoutedEventArgs e) =>
         _viewModel?.RequestAction(PreviewAction.RefreshPrinters);
+
+    private void OnVectorPreviewClicked(object? sender, RoutedEventArgs e)
+    {
+        _viewModel?.RequestAction(PreviewAction.ViewVectorDocument);
+    }
 }

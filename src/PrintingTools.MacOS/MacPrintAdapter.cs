@@ -35,6 +35,7 @@ public sealed class MacPrintAdapter : IPrintAdapter
     private const int PixelFormatRgba8888 = 1;
     private static readonly bool EnableRenderDiagnostics =
         string.Equals(Environment.GetEnvironmentVariable("PRINTINGTOOLS_TRACE_RENDER"), "1", StringComparison.OrdinalIgnoreCase);
+    private static readonly IVectorPageRenderer VectorRenderer = new SkiaVectorPageRenderer();
     private const string DiagnosticsCategory = "MacPrintAdapter";
 
     private static void EmitDiagnostic(string message, Exception? exception = null, object? context = null) =>
@@ -71,6 +72,16 @@ public sealed class MacPrintAdapter : IPrintAdapter
                 });
         }
 
+        if (TryRunVectorPreview(session.Options, pages))
+        {
+            return;
+        }
+
+        if (TryRunVectorPreview(session.Options, pages))
+        {
+            return;
+        }
+
         if (session.Options.UseManagedPdfExporter)
         {
             HandleManagedPdfExport(session.Options, pages);
@@ -78,6 +89,11 @@ public sealed class MacPrintAdapter : IPrintAdapter
         }
 
         if (TryExportManagedPdfIfRequested(session, pages))
+        {
+            return;
+        }
+
+        if (TryCommitVectorPrint(session.Options, pages))
         {
             return;
         }
@@ -91,30 +107,28 @@ public sealed class MacPrintAdapter : IPrintAdapter
         EnsureSupported();
 
         var pages = CollectPages(session, cancellationToken, TargetPreviewDpi);
-        var images = new List<RenderTargetBitmap>(pages.Count);
 
-        try
+        if (EnableRenderDiagnostics)
         {
             foreach (var page in pages)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
                 var metrics = EnsureMetrics(page, TargetPreviewDpi);
-                var bitmap = RenderPageBitmap(page, metrics);
-                images.Add(bitmap);
+                LogRenderDiagnostics(page, metrics);
             }
-
-            return Task.FromResult(new PrintPreviewModel(pages, images));
         }
-        catch
+
+        byte[]? vectorDocument = null;
+        if (session.Options.UseVectorRenderer)
         {
-            foreach (var image in images)
+            vectorDocument = VectorRenderer.CreatePdfBytes(pages);
+            if (vectorDocument.Length == 0)
             {
-                image?.Dispose();
+                vectorDocument = null;
             }
-
-            throw;
         }
+
+        return Task.FromResult(new PrintPreviewModel(pages, vectorDocument: vectorDocument));
     }
 
     private static List<PrintPage> CollectPages(PrintSession session, CancellationToken cancellationToken, Vector desiredDpi)
@@ -168,7 +182,7 @@ public sealed class MacPrintAdapter : IPrintAdapter
             return false;
         }
 
-        SkiaPdfExporter.Export(options.PdfOutputPath!, pages);
+        VectorRenderer.ExportPdf(options.PdfOutputPath!, pages);
         return true;
     }
 
@@ -181,14 +195,14 @@ public sealed class MacPrintAdapter : IPrintAdapter
 
         if (!string.IsNullOrWhiteSpace(options.PdfOutputPath))
         {
-            SkiaPdfExporter.Export(options.PdfOutputPath!, pages);
+            VectorRenderer.ExportPdf(options.PdfOutputPath!, pages);
             if (!options.ShowPrintDialog)
             {
                 return;
             }
         }
 
-        var pdfBytes = SkiaPdfExporter.CreatePdfBytes(pages);
+        var pdfBytes = VectorRenderer.CreatePdfBytes(pages);
         if (pdfBytes.Length == 0)
         {
             return;
@@ -196,6 +210,67 @@ public sealed class MacPrintAdapter : IPrintAdapter
 
         var showPanel = options.ShowPrintDialog ? 1 : 0;
         _ = PrintingToolsInterop.RunPdfPrintOperation(pdfBytes, pdfBytes.Length, showPanel);
+    }
+
+    private static bool TryRunVectorPreview(PrintOptions options, IReadOnlyList<PrintPage> pages)
+    {
+        if (!options.UseVectorRenderer || !options.ShowPrintDialog)
+        {
+            return false;
+        }
+
+        if (pages.Count == 0)
+        {
+            return false;
+        }
+
+        var pdfBytes = VectorRenderer.CreatePdfBytes(pages);
+        if (pdfBytes.Length == 0)
+        {
+            return false;
+        }
+
+        var vectorDocument = new PrintingToolsInterop.VectorDocument
+        {
+            Length = pdfBytes.Length,
+            ShowPrintPanel = options.ShowPrintDialog ? 1 : 0
+        };
+
+        var handle = GCHandle.Alloc(pdfBytes, GCHandleType.Pinned);
+        try
+        {
+            vectorDocument.PdfBytes = handle.AddrOfPinnedObject();
+            var result = PrintingToolsInterop.RunVectorPreview(ref vectorDocument) != 0;
+            EmitDiagnostic("Vector preview dispatched via macOS bridge.", context: new { result, options.UseManagedPdfExporter });
+            return result;
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    private static bool TryCommitVectorPrint(PrintOptions options, IReadOnlyList<PrintPage> pages)
+    {
+        if (!options.UseVectorRenderer || options.ShowPrintDialog)
+        {
+            return false;
+        }
+
+        if (pages.Count == 0)
+        {
+            return false;
+        }
+
+        var pdfBytes = VectorRenderer.CreatePdfBytes(pages);
+        if (pdfBytes.Length == 0)
+        {
+            return false;
+        }
+
+        var result = PrintingToolsInterop.RunPdfPrintOperation(pdfBytes, pdfBytes.Length, 0) != 0;
+        EmitDiagnostic("Vector print dispatched via macOS bridge.", context: new { result });
+        return result;
     }
 
     private static bool IsWithinRange(int index, PrintPageRange range) =>
@@ -438,7 +513,12 @@ public sealed class MacPrintAdapter : IPrintAdapter
         try
         {
             var metrics = EnsureMetrics(page, TargetPrintDpi);
-            using var renderTarget = RenderPageBitmap(page, metrics);
+            if (EnableRenderDiagnostics)
+            {
+                LogRenderDiagnostics(page, metrics);
+            }
+
+            using var renderTarget = PrintPageRenderer.RenderToBitmap(page, metrics);
             return TryBlitToContext(renderTarget, metrics, cgContext);
         }
         catch (Exception ex)
@@ -453,82 +533,6 @@ public sealed class MacPrintAdapter : IPrintAdapter
                     TargetDpi = TargetPrintDpi
                 });
             return false;
-        }
-    }
-
-    private static RenderTargetBitmap RenderPageBitmap(PrintPage page, PrintPageMetrics metrics)
-    {
-        var bitmap = new RenderTargetBitmap(metrics.PagePixelSize, metrics.Dpi);
-        using (var drawingContext = bitmap.CreateDrawingContext(true))
-        {
-            DrawPageContent(drawingContext, page, metrics);
-        }
-
-        return bitmap;
-    }
-
-    private static void DrawPageContent(DrawingContext drawingContext, PrintPage page, PrintPageMetrics metrics)
-    {
-        drawingContext.FillRectangle(Brushes.White, new Rect(metrics.PageSize));
-
-        if (metrics.ContentRect.Width <= 0 || metrics.ContentRect.Height <= 0)
-        {
-            return;
-        }
-
-        using (drawingContext.PushTransform(Matrix.CreateTranslation(metrics.ContentRect.X, metrics.ContentRect.Y)))
-        using (drawingContext.PushClip(new Rect(metrics.ContentRect.Size)))
-        using (drawingContext.PushTransform(Matrix.CreateScale(metrics.ContentScale, metrics.ContentScale)))
-        using (drawingContext.PushTransform(Matrix.CreateTranslation(-metrics.ContentOffset.X, -metrics.ContentOffset.Y)))
-        using (drawingContext.PushTransform(Matrix.CreateTranslation(-metrics.VisualBounds.X, -metrics.VisualBounds.Y)))
-        {
-            if (EnableRenderDiagnostics)
-            {
-                LogRenderDiagnostics(page, metrics);
-            }
-
-            RenderVisualTree(drawingContext, page.Visual);
-        }
-    }
-
-    private static void RenderVisualTree(DrawingContext context, Visual visual)
-    {
-        if (!visual.IsVisible || visual.Opacity <= 0)
-        {
-            return;
-        }
-
-        var bounds = visual.Bounds;
-        var translation = Matrix.CreateTranslation(bounds.Position);
-        var renderTransformMatrix = Matrix.Identity;
-
-        if (visual.HasMirrorTransform)
-        {
-            var mirrorMatrix = new Matrix(-1.0, 0.0, 0.0, 1.0, bounds.Width, 0);
-            renderTransformMatrix = mirrorMatrix * renderTransformMatrix;
-        }
-
-        if (visual.RenderTransform is { } renderTransform)
-        {
-            var origin = visual.RenderTransformOrigin.ToPixels(bounds.Size);
-            var offset = Matrix.CreateTranslation(origin);
-            var finalTransform = (-offset) * renderTransform.Value * offset;
-            renderTransformMatrix = finalTransform * renderTransformMatrix;
-        }
-
-        var combinedTransform = renderTransformMatrix * translation;
-
-        using var transformState = context.PushTransform(combinedTransform);
-        using var opacityState = context.PushOpacity(visual.Opacity);
-        using var clipBoundsState = visual.ClipToBounds ? context.PushClip(new Rect(bounds.Size)) : default;
-        using var clipGeometryState = visual.Clip is { } clipGeometry ? context.PushGeometryClip(clipGeometry) : default;
-        using var opacityMaskState = visual.OpacityMask is { } opacityMask ? context.PushOpacityMask(opacityMask, new Rect(bounds.Size)) : default;
-
-        visual.Render(context);
-
-        foreach (var child in visual.GetVisualChildren())
-        {
-            RenderVisualTree(context, child);
         }
     }
 

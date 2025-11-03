@@ -9,7 +9,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using PrintingTools.Core;
 using PrintingTools.MacOS;
-using AvaloniaSample.ViewModels;
+using PrintingTools.UI.ViewModels;
 
 namespace AvaloniaSample;
 
@@ -88,7 +88,7 @@ public partial class MainWindow : Window
             var preview = await adapter.CreatePreviewAsync(session);
             _currentPreview = preview;
 
-            var viewModel = new PrintPreviewViewModel(preview.Pages, preview.Images);
+            var viewModel = new PrintPreviewViewModel(preview.Pages, preview.VectorDocument);
             viewModel.ActionRequested += OnPreviewActionRequested;
             viewModel.LoadPrinters(_printers);
             if (!string.IsNullOrWhiteSpace(_selectedPrinter))
@@ -188,6 +188,7 @@ public partial class MainWindow : Window
         {
             options.ShowPrintDialog = false;
             options.CollectPreviewFirst = true;
+            options.UseVectorRenderer = true;
             configureOptions?.Invoke(options);
         });
 
@@ -429,7 +430,29 @@ public partial class MainWindow : Window
                     viewModel.SelectedPrinter = _selectedPrinter;
                 }
                 break;
+            case PreviewAction.ViewVectorDocument:
+                if (viewModel.VectorDocument is { Length: > 0 } vectorDocument)
+                {
+                    LaunchVectorPreview(vectorDocument);
+                }
+                else
+                {
+                    StatusText.Text = "Vector document unavailable.";
+                }
+                break;
         }
+    }
+
+    private void LaunchVectorPreview(byte[] pdfBytes)
+    {
+        if (!_adapterFactory.IsSupported)
+        {
+            StatusText.Text = "macOS adapter is unavailable.";
+            return;
+        }
+
+        var result = MacPrintUtilities.ShowVectorPreview(pdfBytes);
+        StatusText.Text = result ? "Vector preview launched." : "Vector preview failed.";
     }
 
     private async Task ExecutePhysicalPrintAsync(string? printerName)

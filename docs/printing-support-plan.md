@@ -76,10 +76,14 @@
 ---
 
 10. [ ] Phase 10 – Vector Pipeline Integration (macOS first)
-10.1. [ ] Promote the existing `SkiaPdfExporter` into a reusable vector renderer so both preview and native print paths can emit PDF pages without raster intermediaries.
-10.2. [ ] Extend `MacPrintAdapter` to toggle between raster and vector flows per session, passing vector output through the native bridge while preserving diagnostics.
-10.3. [ ] Update `PrintingToolsMacBridge` with a vector-friendly entry point (e.g., consume managed PDF bytes or issue Quartz drawing callbacks) so AppKit preview/print uses the same vector content.
-10.4. [ ] Replace the managed preview bitmap overlay with the vector renderer once parity is validated, keeping the margin diagnostics as optional overlays.
+10.1. [x] Promote the existing `SkiaPdfExporter` into a reusable vector renderer so both preview and native print paths can emit PDF pages without raster intermediaries.
+    - Introduced `IVectorPageRenderer` in core and refactored the Skia implementation into `SkiaVectorPageRenderer`, keeping diagnostics intact.
+10.2. [x] Extend `MacPrintAdapter` to toggle between raster and vector flows per session, passing vector output through the native bridge while preserving diagnostics.
+    - Adapter now respects `PrintOptions.UseVectorRenderer`; macOS preview and silent print jobs dispatch PDF bytes through the bridge while retaining legacy raster fallback when the vector path is disabled.
+10.3. [x] Update `PrintingToolsMacBridge` with a vector-friendly entry point (e.g., consume managed PDF bytes or issue Quartz drawing callbacks) so AppKit preview/print uses the same vector content.
+    - Added `PrintingTools_RunVectorPreview`, allowing managed vector bytes to drive AppKit preview without bitmap blitting.
+10.4. [x] Replace the managed preview bitmap overlay with the vector renderer once parity is validated, keeping the margin diagnostics as optional overlays.
+    - Managed preview now renders via `PrintPageVectorView`, reusing the shared renderer for on-screen display while still providing the optional margin overlay; vector bytes are available for native preview launch when desired.
 10.5. [ ] Leverage Avalonia’s MSBuild friend access (`ExternalConsumers.props`) to call required internals (`ImmediateRenderer`, scene graph helpers) so work can proceed without waiting on upstream API exposure.
 
 ---

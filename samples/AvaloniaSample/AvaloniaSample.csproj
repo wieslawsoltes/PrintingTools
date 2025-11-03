@@ -23,5 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PrintingTools.Core\PrintingTools.Core.csproj" />
     <ProjectReference Include="..\..\src\PrintingTools.MacOS\PrintingTools.MacOS.csproj" />
+    <ProjectReference Include="..\..\src\PrintingTools.UI\PrintingTools.UI.csproj" />
   </ItemGroup>
 </Project>
