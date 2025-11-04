@@ -1,20 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using PrintingTools.Core;
+using System.Collections.ObjectModel;
 
 namespace PrintingTools.Core.Pagination;
 
 /// <summary>
 /// Provides a centralized place to translate a <see cref="PrintDocument"/> into a paginated set of <see cref="PrintPage"/>s.
 /// </summary>
-internal interface IPrintPaginator
+public interface IPrintPaginator
 {
     IReadOnlyList<PrintPage> Paginate(PrintDocument document, PrintOptions options, CancellationToken cancellationToken = default);
 }
 
-internal sealed class DefaultPrintPaginator : IPrintPaginator
+public sealed class DefaultPrintPaginator : IPrintPaginator
 {
+    public static DefaultPrintPaginator Instance { get; } = new();
+
     public IReadOnlyList<PrintPage> Paginate(PrintDocument document, PrintOptions options, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -28,12 +30,12 @@ internal sealed class DefaultPrintPaginator : IPrintPaginator
             var page = enumerator.Current;
             cancellationToken.ThrowIfCancellationRequested();
 
-            foreach (var expanded in PrintPaginationUtilities.ExpandPage(page))
+            foreach (var expanded in PrintPaginationUtilities.ExpandPage(page, options))
             {
                 pages.Add(expanded);
             }
         }
 
-        return pages;
+        return new ReadOnlyCollection<PrintPage>(pages);
     }
 }

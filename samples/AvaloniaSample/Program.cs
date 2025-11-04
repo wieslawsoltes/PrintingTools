@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using PrintingTools;
 
 namespace AvaloniaSample;
 
@@ -16,6 +17,7 @@ class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .UsePrintingTools()
             .WithInterFont()
             .LogToTrace();
 }

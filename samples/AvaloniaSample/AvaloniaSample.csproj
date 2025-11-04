@@ -6,6 +6,7 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PrintingTools.Core\PrintingTools.Core.csproj" />
     <ProjectReference Include="..\..\src\PrintingTools.MacOS\PrintingTools.MacOS.csproj" />
+    <ProjectReference Include="..\..\src\PrintingTools\PrintingTools.csproj" />
     <ProjectReference Include="..\..\src\PrintingTools.UI\PrintingTools.UI.csproj" />
   </ItemGroup>
 </Project>

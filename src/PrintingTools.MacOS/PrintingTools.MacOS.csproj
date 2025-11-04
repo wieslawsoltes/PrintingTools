@@ -4,7 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <TargetFrameworks>net10.0</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>true</IsPackable>
+    <PackageId>PrintingTools.MacOS</PackageId>
+    <Description>macOS adapter for PrintingTools featuring AppKit dialog integration, vector preview hosting, and Quartz PDF export.</Description>
+    <PackageTags>printing;macos;appkit;avalonia</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,15 +19,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="native/OSX/PrintingToolsMacBridge.mm" />
-    <None Include="native/OSX/build-native.sh" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="native/OSX/PrintingToolsMacBridge.mm">
+      <Pack>false</Pack>
+    </None>
+    <None Include="native/OSX/build-native.sh" CopyToOutputDirectory="PreserveNewest">
+      <Pack>false</Pack>
+    </None>
     <None Include="native/OSX/PrintingToolsMacBridge.dylib">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>runtimes/osx/native/PrintingToolsMacBridge.dylib</TargetPath>
+      <Pack>false</Pack>
     </None>
   </ItemGroup>
 
-  <Target Name="BuildNativeBridge" BeforeTargets="PrepareForBuild">
+  <Target Name="BuildNativeBridge" BeforeTargets="PrepareForBuild" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
     <Message Text="Building PrintingToolsMacBridge.dylib" Importance="High" />
     <Exec Command="bash build-native.sh" WorkingDirectory="$(ProjectDir)native/OSX" />
   </Target>
@@ -32,6 +41,7 @@
     <NativeLibrary Include="native/OSX/PrintingToolsMacBridge.dylib">
       <DestinationSubDirectory>runtimes/osx/native/</DestinationSubDirectory>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
     </NativeLibrary>
   </ItemGroup>
 

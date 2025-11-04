@@ -1,0 +1,103 @@
+name: PrintingTools Harnesses
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  linux-harness:
+    name: Linux Harness
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.100-rc.2.25502.107
+          include-prerelease: true
+      - name: Restore
+        run: dotnet restore PrintingTool.sln
+      - name: Run Linux sandbox harness
+        env:
+          GTK_USE_PORTAL: '1'
+          GIO_USE_PORTALS: '1'
+        run: |
+          mkdir -p artifacts/linux
+          dotnet run --project samples/LinuxSandboxHarness/LinuxSandboxHarness.csproj -- --print --output=artifacts/linux/printingtools-linux.pdf --metrics=artifacts/linux/metrics.json --stress=3 | tee artifacts/linux/linux-harness.log
+      - name: Validate Linux metrics
+        env:
+          HARNESS_METRICS_PATH: artifacts/linux/metrics.json
+          HARNESS_PLATFORM: Linux
+        run: dotnet test tests/PrintingTools.Tests/PrintingTools.Tests.csproj
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-harness
+          path: artifacts/linux
+
+  macos-harness:
+    name: macOS Harness
+    runs-on: macos-latest
+    env:
+      DOTNET_NOLOGO: '1'
+      CI: 'true'
+      PRINTINGTOOLS_MAC_HEADLESS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.100-rc.2.25502.107
+          include-prerelease: true
+      - name: Restore
+        run: dotnet restore PrintingTool.sln
+      - name: Run macOS sandbox harness
+        run: |
+          mkdir -p artifacts/macos
+          dotnet run --project samples/MacSandboxHarness/MacSandboxHarness.csproj -- --headless --output=artifacts/macos/printingtools-macos.pdf --metrics=artifacts/macos/metrics.json --stress=3 | tee artifacts/macos/macos-harness.log
+      - name: Validate macOS metrics
+        env:
+          HARNESS_METRICS_PATH: artifacts/macos/metrics.json
+          HARNESS_PLATFORM: macOS
+        run: dotnet test tests/PrintingTools.Tests/PrintingTools.Tests.csproj
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-harness
+          path: artifacts/macos
+
+  windows-harness:
+    name: Windows Harness
+    runs-on: windows-latest
+    env:
+      DOTNET_NOLOGO: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.100-rc.2.25502.107
+          include-prerelease: true
+      - name: Restore
+        run: dotnet restore PrintingTool.sln
+      - name: Run Windows print harness
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/windows | Out-Null
+          dotnet run --project samples/WindowsPrintHarness/WindowsPrintHarness.csproj -- --output=artifacts/windows/printingtools-windows.pdf --metrics=artifacts/windows/metrics.json --stress=3 | Tee-Object -FilePath artifacts/windows/windows-harness.log
+      - name: Validate Windows metrics
+        shell: pwsh
+        env:
+          HARNESS_METRICS_PATH: artifacts/windows/metrics.json
+          HARNESS_PLATFORM: Windows
+        run: dotnet test tests/PrintingTools.Tests/PrintingTools.Tests.csproj
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-harness
+          path: artifacts/windows

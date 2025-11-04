@@ -1,52 +1,87 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
+using System.Windows.Input;
+using Avalonia.Input;
 using PrintingTools.Core;
+using PrintingTools.Core.Preview;
 using PrintingTools.MacOS;
+using PrintingTools.MacOS.Preview;
+using PrintingTools.UI.Controls;
 using PrintingTools.UI.ViewModels;
 
 namespace AvaloniaSample;
 
 public partial class MainWindow : Window
 {
-    private readonly MacPrintAdapterFactory _adapterFactory = new();
+    private readonly IPrintManager _printManager;
+    private readonly IPrintAdapterResolver _adapterResolver;
     private readonly Action<PrintDiagnosticEvent> _diagnosticSink;
-    private readonly List<string> _printers = new();
+    private readonly List<PrinterInfo> _printers = new();
     private PrintPreviewModel? _currentPreview;
     private bool _isRendering;
-    private string? _selectedPrinter;
+    private bool _printingSupported;
+    private PrinterInfo? _selectedPrinter;
+    private PrintOptions _pageSetupOptions = new();
+    private PrintSession? _activeSession;
+
+    public ObservableCollection<JobHistoryEntry> JobHistory { get; } = new();
+
+    public ICommand ClearHistoryCommand { get; }
 
     public MainWindow()
     {
         InitializeComponent();
+        DataContext = this;
+
+        _printManager = PrintServiceRegistry.EnsureManager();
+        _adapterResolver = PrintServiceRegistry.EnsureResolver();
+
         _diagnosticSink = OnDiagnostic;
         PrintDiagnostics.RegisterSink(_diagnosticSink);
 
-        if (_adapterFactory.IsSupported)
-        {
-            StatusText.Text = "Ready to render sample pages.";
-            RefreshPrinters();
-        }
-        else
-        {
-            StatusText.Text = "macOS printing adapter unavailable on this platform.";
-            PreviewButton.IsEnabled = false;
-            NativePreviewButton.IsEnabled = false;
-            ExportPdfButton.IsEnabled = false;
-        }
+        ClearHistoryCommand = new DelegateCommand(() => JobHistory.Clear());
+
+        StatusText.Text = "Initializing printing services…";
+        SetCommandButtonsEnabled(false);
+
+        Dispatcher.UIThread.Post(async () => await InitializeAsync());
     }
 
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
+        if (_activeSession is not null)
+        {
+            _activeSession.JobStatusChanged -= OnSessionJobStatusChanged;
+            _activeSession = null;
+        }
+
         PrintDiagnostics.UnregisterSink(_diagnosticSink);
         DisposePreview();
+    }
+
+    private async Task InitializeAsync()
+    {
+        _printingSupported = await RefreshPrintersAsync();
+        if (!_printingSupported && string.IsNullOrWhiteSpace(StatusText.Text))
+        {
+            StatusText.Text = "Printing services are unavailable on this platform.";
+        }
+
+        if (!_isRendering)
+        {
+            SetCommandButtonsEnabled(_printingSupported);
+        }
     }
 
     private async void OnPreviewClicked(object? sender, RoutedEventArgs e)
@@ -56,50 +91,70 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!_adapterFactory.IsSupported)
+        if (!_printingSupported)
         {
-            StatusText.Text = "macOS adapter is unavailable.";
+            StatusText.Text = "Printing services are unavailable.";
             return;
         }
 
         _isRendering = true;
-        PreviewButton.IsEnabled = false;
-        ExportPdfButton.IsEnabled = false;
+        SetCommandButtonsEnabled(false);
         StatusText.Text = "Generating preview…";
 
         try
         {
             DisposePreview();
 
-            var adapter = _adapterFactory.CreateAdapter();
-            if (adapter is null)
-            {
-                StatusText.Text = "macOS adapter could not be created.";
-                return;
-            }
-
             var session = BuildSampleSession(options =>
             {
-                if (!string.IsNullOrWhiteSpace(_selectedPrinter))
+                if (_selectedPrinter is not null)
                 {
-                    options.PrinterName = _selectedPrinter;
+                    options.PrinterName = _selectedPrinter.Name;
                 }
             });
-            var preview = await adapter.CreatePreviewAsync(session);
+
+            var preview = await _printManager.CreatePreviewAsync(session);
             _currentPreview = preview;
 
             var viewModel = new PrintPreviewViewModel(preview.Pages, preview.VectorDocument);
             viewModel.ActionRequested += OnPreviewActionRequested;
-            viewModel.LoadPrinters(_printers);
-            if (!string.IsNullOrWhiteSpace(_selectedPrinter))
+            viewModel.LoadPrinters(_printers, _selectedPrinter?.Id, _selectedPrinter?.Name);
+            if (_selectedPrinter is not null)
             {
                 viewModel.SelectedPrinter = _selectedPrinter;
             }
 
-            var window = new PrintPreviewWindow(viewModel);
-            await window.ShowDialog(this);
-            viewModel.ActionRequested -= OnPreviewActionRequested;
-            _selectedPrinter = viewModel.SelectedPrinter;
+            Control? nativePreviewContent = null;
+            MacPreviewHost? macPreviewHost = null;
+
+            try
+            {
+                if (OperatingSystem.IsMacOS())
+                {
+                    var adapter = _adapterResolver.Resolve(session);
+                    if (adapter is IPrintPreviewProvider previewProvider)
+                    {
+                        macPreviewHost = new MacPreviewHost(previewProvider);
+                        macPreviewHost.LoadPreview(preview);
+                        macPreviewHost.Initialize(session);
+                        nativePreviewContent = new MacPreviewNativeControlHost(macPreviewHost);
+                    }
+                }
+
+                var window = new PrintPreviewWindow(viewModel)
+                {
+                    NativePreviewContent = nativePreviewContent
+                };
+
+                await window.ShowDialog(this);
+            }
+            finally
+            {
+                viewModel.ActionRequested -= OnPreviewActionRequested;
+                _selectedPrinter = viewModel.SelectedPrinter;
+                macPreviewHost?.Dispose();
+            }
+
             StatusText.Text = "Preview closed.";
         }
         catch (Exception ex)
@@ -109,9 +164,7 @@ public partial class MainWindow : Window
         finally
         {
             _isRendering = false;
-            PreviewButton.IsEnabled = _adapterFactory.IsSupported;
-            NativePreviewButton.IsEnabled = _adapterFactory.IsSupported;
-            ExportPdfButton.IsEnabled = _adapterFactory.IsSupported;
+            SetCommandButtonsEnabled(_printingSupported);
         }
     }
 
@@ -122,57 +175,59 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!_adapterFactory.IsSupported)
+        if (!_printingSupported)
         {
-            StatusText.Text = "macOS adapter is unavailable.";
+            StatusText.Text = "Printing services are unavailable.";
             return;
         }
 
         _isRendering = true;
-        PreviewButton.IsEnabled = false;
-        NativePreviewButton.IsEnabled = false;
-        ExportPdfButton.IsEnabled = false;
-        StatusText.Text = "Opening macOS print preview…";
+        SetCommandButtonsEnabled(false);
+        StatusText.Text = "Opening native print preview…";
 
         try
         {
             DisposePreview();
 
-            var adapter = _adapterFactory.CreateAdapter();
-            if (adapter is null)
-            {
-                StatusText.Text = "macOS adapter could not be created.";
-                return;
-            }
-
             var session = BuildSampleSession();
             session.Options.ShowPrintDialog = true;
             session.Options.UseManagedPdfExporter = true;
             session.Options.PdfOutputPath = null;
-            if (!string.IsNullOrWhiteSpace(_selectedPrinter))
+            if (_selectedPrinter is not null)
             {
-                session.Options.PrinterName = _selectedPrinter;
+                session.Options.PrinterName = _selectedPrinter.Name;
             }
 
-            await adapter.PrintAsync(session);
+            await _printManager.PrintAsync(session);
 
-            StatusText.Text = "macOS preview closed.";
+            StatusText.Text = "Native preview closed.";
         }
         catch (Exception ex)
         {
-            StatusText.Text = $"macOS preview failed: {ex.Message}";
+            StatusText.Text = $"Native preview failed: {ex.Message}";
         }
         finally
         {
             _isRendering = false;
-            PreviewButton.IsEnabled = _adapterFactory.IsSupported;
-            NativePreviewButton.IsEnabled = _adapterFactory.IsSupported;
-            ExportPdfButton.IsEnabled = _adapterFactory.IsSupported;
+            SetCommandButtonsEnabled(_printingSupported);
         }
     }
 
     private async void OnExportPdfClicked(object? sender, RoutedEventArgs e) =>
         await ExecutePdfExportAsync(_selectedPrinter);
+
+    private async void OnPageSetupClicked(object? sender, RoutedEventArgs e)
+    {
+        var viewModel = new PageSetupViewModel();
+        viewModel.LoadFrom(_pageSetupOptions);
+        var dialog = new PageSetupWindow(viewModel);
+        var applied = await dialog.ShowDialog<bool>(this);
+        if (applied)
+        {
+            _pageSetupOptions = viewModel.ApplyTo(_pageSetupOptions);
+            StatusText.Text = "Page setup updated.";
+        }
+    }
 
     private PrintSession BuildSampleSession(Action<PrintOptions>? configureOptions = null)
     {
@@ -189,10 +244,24 @@ public partial class MainWindow : Window
             options.ShowPrintDialog = false;
             options.CollectPreviewFirst = true;
             options.UseVectorRenderer = true;
+            options.Orientation = _pageSetupOptions.Orientation;
+            options.Margins = _pageSetupOptions.Margins;
+            options.UsePrintableArea = _pageSetupOptions.UsePrintableArea;
+            options.CenterHorizontally = _pageSetupOptions.CenterHorizontally;
+            options.CenterVertically = _pageSetupOptions.CenterVertically;
+            options.PaperSize = _pageSetupOptions.PaperSize;
+            options.LayoutKind = _pageSetupOptions.LayoutKind;
+            options.NUpRows = _pageSetupOptions.NUpRows;
+            options.NUpColumns = _pageSetupOptions.NUpColumns;
+            options.NUpOrder = _pageSetupOptions.NUpOrder;
+            options.BookletBindLongEdge = _pageSetupOptions.BookletBindLongEdge;
+            options.PosterTileCount = _pageSetupOptions.PosterTileCount;
             configureOptions?.Invoke(options);
         });
 
-        return builder.Build("Quarterly Report");
+        var session = builder.Build("Quarterly Report");
+        AttachSession(session);
+        return session;
     }
 
     private Control CreateSamplePage(int pageNumber)
@@ -379,29 +448,98 @@ public partial class MainWindow : Window
         }
     }
 
-    private void RefreshPrinters()
+    private void AttachSession(PrintSession session)
     {
-        _printers.Clear();
+        if (_activeSession == session)
+        {
+            return;
+        }
 
+        if (_activeSession is not null)
+        {
+            _activeSession.JobStatusChanged -= OnSessionJobStatusChanged;
+        }
+
+        _activeSession = session;
+        _activeSession.JobStatusChanged += OnSessionJobStatusChanged;
+        AppendJobHistory(PrintJobEventKind.Unknown, $"Session '{session.Description ?? "Print Job"}' created.");
+    }
+
+    private void OnSessionJobStatusChanged(object? sender, PrintJobEventArgs e)
+    {
+        var message = string.IsNullOrWhiteSpace(e.Message) ? e.Kind.ToString() : e.Message!;
+        Dispatcher.UIThread.Post(() =>
+        {
+            AppendJobHistory(e.Kind, message);
+            if (e.Exception is { } ex)
+            {
+                AppendJobHistory(e.Kind, ex.Message);
+            }
+        });
+    }
+
+    private void AppendJobHistory(PrintJobEventKind kind, string message)
+    {
+        JobHistory.Add(new JobHistoryEntry(DateTimeOffset.Now, kind, message));
+        while (JobHistory.Count > 200)
+        {
+            JobHistory.RemoveAt(0);
+        }
+    }
+
+    private async Task<bool> RefreshPrintersAsync(PrintPreviewViewModel? viewModel = null)
+    {
         try
         {
-            var printers = MacPrinterCatalog.GetInstalledPrinters();
+            var printers = await _printManager.GetPrintersAsync();
+
+            _printers.Clear();
             _printers.AddRange(printers);
-            if (_printers.Count > 0 && string.IsNullOrWhiteSpace(_selectedPrinter))
+
+            if (_selectedPrinter is not null)
             {
-                _selectedPrinter = _printers[0];
+                var updated = _printers.FirstOrDefault(p => p.Id == _selectedPrinter.Id);
+                if (updated is not null)
+                {
+                    _selectedPrinter = updated;
+                }
             }
+
+            if (_selectedPrinter is null && _printers.Count > 0)
+            {
+                _selectedPrinter = _printers.FirstOrDefault(p => p.IsDefault) ?? _printers[0];
+            }
+
+            viewModel?.LoadPrinters(_printers, _selectedPrinter?.Id, _selectedPrinter?.Name);
 
             StatusText.Text = _printers.Count switch
             {
                 0 => "No printers detected.",
-                1 => $"Detected {_printers.Count} printer.",
+                1 => "Detected 1 printer.",
                 _ => $"Detected {_printers.Count} printers."
             };
+
+            _printingSupported = true;
+            if (!_isRendering)
+            {
+                SetCommandButtonsEnabled(true);
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is NotSupportedException or PlatformNotSupportedException)
+        {
+            _printingSupported = false;
+            StatusText.Text = "Printer enumeration is not supported on this platform.";
+            SetCommandButtonsEnabled(false);
+            return false;
         }
         catch (Exception ex)
         {
+            _printingSupported = false;
             StatusText.Text = $"Printer refresh failed: {ex.Message}";
+            SetCommandButtonsEnabled(false);
+            return false;
         }
     }
 
@@ -423,9 +561,8 @@ public partial class MainWindow : Window
                 await ExecutePdfExportAsync(_selectedPrinter);
                 break;
             case PreviewAction.RefreshPrinters:
-                RefreshPrinters();
-                viewModel.LoadPrinters(_printers);
-                if (!string.IsNullOrWhiteSpace(_selectedPrinter))
+                await RefreshPrintersAsync(viewModel);
+                if (_selectedPrinter is not null)
                 {
                     viewModel.SelectedPrinter = _selectedPrinter;
                 }
@@ -445,9 +582,9 @@ public partial class MainWindow : Window
 
     private void LaunchVectorPreview(byte[] pdfBytes)
     {
-        if (!_adapterFactory.IsSupported)
+        if (!OperatingSystem.IsMacOS())
         {
-            StatusText.Text = "macOS adapter is unavailable.";
+            StatusText.Text = "Vector preview is only available on macOS.";
             return;
         }
 
@@ -455,7 +592,7 @@ public partial class MainWindow : Window
         StatusText.Text = result ? "Vector preview launched." : "Vector preview failed.";
     }
 
-    private async Task ExecutePhysicalPrintAsync(string? printerName)
+    private async Task ExecutePhysicalPrintAsync(PrinterInfo? printer)
     {
         if (_isRendering)
         {
@@ -463,27 +600,19 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!_adapterFactory.IsSupported)
+        if (!_printingSupported)
         {
-            StatusText.Text = "macOS adapter is unavailable.";
+            StatusText.Text = "Printing services are unavailable.";
             return;
         }
 
         _isRendering = true;
-        PreviewButton.IsEnabled = false;
-        NativePreviewButton.IsEnabled = false;
-        ExportPdfButton.IsEnabled = false;
+        SetCommandButtonsEnabled(false);
         StatusText.Text = "Sending print job…";
 
         try
         {
             DisposePreview();
-            var adapter = _adapterFactory.CreateAdapter();
-            if (adapter is null)
-            {
-                StatusText.Text = "macOS adapter could not be created.";
-                return;
-            }
 
             var session = BuildSampleSession(options =>
             {
@@ -491,13 +620,13 @@ public partial class MainWindow : Window
                 options.CollectPreviewFirst = false;
                 options.UseManagedPdfExporter = false;
                 options.PdfOutputPath = null;
-                if (!string.IsNullOrWhiteSpace(printerName))
+                if (printer is not null)
                 {
-                    options.PrinterName = printerName;
+                    options.PrinterName = printer.Name;
                 }
             });
 
-            await adapter.PrintAsync(session);
+            await _printManager.PrintAsync(session);
             StatusText.Text = "Print job submitted.";
         }
         catch (Exception ex)
@@ -507,13 +636,11 @@ public partial class MainWindow : Window
         finally
         {
             _isRendering = false;
-            PreviewButton.IsEnabled = _adapterFactory.IsSupported;
-            NativePreviewButton.IsEnabled = _adapterFactory.IsSupported;
-            ExportPdfButton.IsEnabled = _adapterFactory.IsSupported;
+            SetCommandButtonsEnabled(_printingSupported);
         }
     }
 
-    private async Task ExecutePdfExportAsync(string? printerName)
+    private async Task ExecutePdfExportAsync(PrinterInfo? printer)
     {
         if (_isRendering)
         {
@@ -521,27 +648,19 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!_adapterFactory.IsSupported)
+        if (!_printingSupported)
         {
-            StatusText.Text = "macOS adapter is unavailable.";
+            StatusText.Text = "Printing services are unavailable.";
             return;
         }
 
         _isRendering = true;
-        PreviewButton.IsEnabled = false;
-        NativePreviewButton.IsEnabled = false;
-        ExportPdfButton.IsEnabled = false;
+        SetCommandButtonsEnabled(false);
         StatusText.Text = "Exporting PDF…";
 
         try
         {
             DisposePreview();
-            var adapter = _adapterFactory.CreateAdapter();
-            if (adapter is null)
-            {
-                StatusText.Text = "macOS adapter could not be created.";
-                return;
-            }
 
             var pdfPath = GetPdfDestination();
             var session = BuildSampleSession(options =>
@@ -550,13 +669,13 @@ public partial class MainWindow : Window
                 options.CollectPreviewFirst = false;
                 options.UseManagedPdfExporter = true;
                 options.PdfOutputPath = pdfPath;
-                if (!string.IsNullOrWhiteSpace(printerName))
+                if (printer is not null)
                 {
-                    options.PrinterName = printerName;
+                    options.PrinterName = printer.Name;
                 }
             });
 
-            await adapter.PrintAsync(session);
+            await _printManager.PrintAsync(session);
             StatusText.Text = $"PDF exported to {pdfPath}";
         }
         catch (Exception ex)
@@ -566,9 +685,14 @@ public partial class MainWindow : Window
         finally
         {
             _isRendering = false;
-            PreviewButton.IsEnabled = _adapterFactory.IsSupported;
-            NativePreviewButton.IsEnabled = _adapterFactory.IsSupported;
-            ExportPdfButton.IsEnabled = _adapterFactory.IsSupported;
+            SetCommandButtonsEnabled(_printingSupported);
         }
+    }
+
+    private void SetCommandButtonsEnabled(bool isEnabled)
+    {
+        PreviewButton.IsEnabled = isEnabled;
+        NativePreviewButton.IsEnabled = isEnabled;
+        ExportPdfButton.IsEnabled = isEnabled;
     }
 }

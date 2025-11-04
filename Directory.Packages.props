@@ -6,6 +6,11 @@
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="11.3.6" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.6" />
     <PackageVersion Include="Avalonia.Skia" Version="11.3.6" />
+    <PackageVersion Include="GtkSharp" Version="3.24.24.95" />
     <PackageVersion Include="SkiaSharp" Version="3.119.0" />
+    <PackageVersion Include="xunit" Version="2.5.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
   </ItemGroup>
 </Project>

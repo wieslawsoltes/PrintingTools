@@ -1,0 +1,41 @@
+name: printingtools-linux-sandbox
+base: core24
+version: '1.0'
+summary: PrintingTools Linux sandbox harness
+description: |
+  Harness for validating PrintingTools printing and portal integration inside a snap container.
+
+grade: devel
+confinement: strict
+
+environment:
+  PRINTINGTOOLS_SANDBOX_PDF: "$SNAP_COMMON/printingtools-output.pdf"
+  GTK_USE_PORTAL: "1"
+  GIO_USE_PORTALS: "1"
+
+apps:
+  sandbox:
+    command: bin/PrintingTools.LinuxSandboxHarness --print
+    plugs:
+      - cups-control
+      - network
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - home
+    daemon: simple
+
+parts:
+  harness:
+    plugin: dotnet
+    source: ../../..
+    override-build: |
+      dotnet publish samples/LinuxSandboxHarness/LinuxSandboxHarness.csproj -c Release -r linux-x64 --self-contained false /p:PublishTrimmed=false
+      install -D samples/LinuxSandboxHarness/README.md $SNAPCRAFT_PART_INSTALL/README.md
+      install -D bin/Release/net10.0/linux-x64/publish/PrintingTools.LinuxSandboxHarness $SNAPCRAFT_PART_INSTALL/bin/PrintingTools.LinuxSandboxHarness
+    build-packages:
+      - dotnet-sdk-8.0
+    stage-packages:
+      - libcups2
+      - libgtk-3-0

@@ -1,0 +1,29 @@
+{
+  "Windows": {
+    "minPageCount": 1,
+    "maxSessionMilliseconds": 8000,
+    "maxPreviewMilliseconds": 12000,
+    "maxPrintMilliseconds": 30000,
+    "maxAccessibilityIssues": 0,
+    "maxPeakMemoryBytes": 300000000,
+    "minStressIterations": 2
+  },
+  "macOS": {
+    "minPageCount": 1,
+    "maxSessionMilliseconds": 8000,
+    "maxPreviewMilliseconds": 12000,
+    "maxPrintMilliseconds": 30000,
+    "maxAccessibilityIssues": 0,
+    "maxPeakMemoryBytes": 300000000,
+    "minStressIterations": 2
+  },
+  "Linux": {
+    "minPageCount": 1,
+    "maxSessionMilliseconds": 8000,
+    "maxPreviewMilliseconds": 12000,
+    "maxPrintMilliseconds": 30000,
+    "maxAccessibilityIssues": 0,
+    "maxPeakMemoryBytes": 300000000,
+    "minStressIterations": 2
+  }
+}

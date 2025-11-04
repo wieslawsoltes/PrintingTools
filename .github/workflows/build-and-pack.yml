@@ -1,0 +1,137 @@
+name: Build & Pack
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+env:
+  DOTNET_NOLOGO: '1'
+  CI: 'true'
+
+jobs:
+  native-linux:
+    name: Build Linux components
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.100-rc.2.25502.107
+          include-prerelease: true
+      - name: Restore Linux project
+        run: dotnet restore src/PrintingTools.Linux/PrintingTools.Linux.csproj
+      - name: Build Linux project
+        run: dotnet build src/PrintingTools.Linux/PrintingTools.Linux.csproj --configuration Release --no-restore
+      - name: Package Linux native outputs
+        run: |
+          mkdir -p native-build/linux
+          echo "Linux build completed on $(date -u)" > native-build/linux/BUILD_INFO.txt
+          if compgen -G "src/PrintingTools.Linux/native/**/*" > /dev/null; then
+            cp -R src/PrintingTools.Linux/native/. native-build/linux/
+          fi
+      - name: Upload Linux native artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-linux
+          path: native-build/linux
+
+  native-windows:
+    name: Build Windows components
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.100-rc.2.25502.107
+          include-prerelease: true
+      - name: Restore Windows project
+        shell: pwsh
+        run: dotnet restore src/PrintingTools.Windows/PrintingTools.Windows.csproj
+      - name: Build Windows project
+        shell: pwsh
+        run: dotnet build src/PrintingTools.Windows/PrintingTools.Windows.csproj --configuration Release --no-restore
+      - name: Package Windows native outputs
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path native-build/windows | Out-Null
+          "Windows build completed on $(Get-Date -Format o)" | Out-File native-build/windows/BUILD_INFO.txt -Encoding utf8
+          $nativePath = Join-Path $PWD "src/PrintingTools.Windows\native"
+          if (Test-Path $nativePath) {
+            Copy-Item "$nativePath\*" native-build/windows -Recurse -Force
+          }
+      - name: Upload Windows native artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-windows
+          path: native-build/windows
+
+  native-macos:
+    name: Build macOS native bridge
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.100-rc.2.25502.107
+          include-prerelease: true
+      - name: Restore macOS project
+        run: dotnet restore src/PrintingTools.MacOS/PrintingTools.MacOS.csproj
+      - name: Build macOS project (generates native bridge)
+        run: dotnet build src/PrintingTools.MacOS/PrintingTools.MacOS.csproj --configuration Release --no-restore
+      - name: Package macOS native bridge
+        run: |
+          mkdir -p native-build/macos
+          cp src/PrintingTools.MacOS/native/OSX/PrintingToolsMacBridge.dylib native-build/macos/PrintingToolsMacBridge.dylib
+          echo "macOS bridge built on $(date -u)" > native-build/macos/BUILD_INFO.txt
+      - name: Upload macOS native artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-macos
+          path: native-build/macos
+
+  pack:
+    name: Pack NuGet artifacts
+    runs-on: ubuntu-latest
+    needs:
+      - native-linux
+      - native-windows
+      - native-macos
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Linux native outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: native-linux
+          path: native-artifacts/linux
+      - name: Download Windows native outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: native-windows
+          path: native-artifacts/windows
+      - name: Download macOS native bridge
+        uses: actions/download-artifact@v4
+        with:
+          name: native-macos
+          path: native-artifacts/macos
+      - name: Install macOS native bridge
+        run: |
+          mkdir -p src/PrintingTools.MacOS/native/OSX
+          cp native-artifacts/macos/PrintingToolsMacBridge.dylib src/PrintingTools.MacOS/native/OSX/PrintingToolsMacBridge.dylib
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.100-rc.2.25502.107
+          include-prerelease: true
+      - name: Restore solution
+        run: dotnet restore PrintingTool.sln
+      - name: Pack solution
+        run: dotnet pack PrintingTool.sln --configuration Release --no-restore --output artifacts/packages -p:ContinuousIntegrationBuild=true
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: artifacts/packages

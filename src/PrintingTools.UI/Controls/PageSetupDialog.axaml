@@ -1,0 +1,182 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:PrintingTools.UI.ViewModels;assembly=PrintingTools.UI"
+             x:Class="PrintingTools.UI.Controls.PageSetupDialog"
+             mc:Ignorable="d">
+    <UserControl.DataContext>
+        <viewModels:PageSetupViewModel />
+    </UserControl.DataContext>
+
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
+            <StackPanel>
+                <TextBlock Text="Paper Size" FontWeight="SemiBold"/>
+                <ComboBox ItemsSource="{Binding PaperSizes}"
+                          SelectedItem="{Binding SelectedPaperSize}"
+                          Width="200"/>
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Text="Orientation" FontWeight="SemiBold"/>
+                <ComboBox Width="160"
+                          SelectedItem="{Binding SelectedOrientation}">
+                    <ComboBoxItem Content="Portrait" />
+                    <ComboBoxItem Content="Landscape" />
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Text="Margins (in)" FontWeight="SemiBold"/>
+                <UniformGrid Columns="2" Rows="2" ColumnSpacing="8" RowSpacing="8">
+                    <StackPanel>
+                        <TextBlock Text="Top"/>
+                        <NumericUpDown Minimum="0" Maximum="2" Increment="0.1"
+                                       Value="{Binding Margins.Top}" Width="80"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Right"/>
+                        <NumericUpDown Minimum="0" Maximum="2" Increment="0.1"
+                                       Value="{Binding Margins.Right}" Width="80"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Bottom"/>
+                        <NumericUpDown Minimum="0" Maximum="2" Increment="0.1"
+                                       Value="{Binding Margins.Bottom}" Width="80"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Left"/>
+                        <NumericUpDown Minimum="0" Maximum="2" Increment="0.1"
+                                       Value="{Binding Margins.Left}" Width="80"/>
+                    </StackPanel>
+                </UniformGrid>
+            </StackPanel>
+        </StackPanel>
+
+        <Border Grid.Row="1"
+                Grid.Column="0"
+                BorderBrush="#DDD"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="12"
+                Background="#FFF">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+                <Grid RenderTransformOrigin="0.5,0.5">
+                    <Grid.RenderTransform>
+                        <ScaleTransform ScaleX="{Binding PreviewScale}"
+                                        ScaleY="{Binding PreviewScale}"/>
+                    </Grid.RenderTransform>
+                    <Border Width="{Binding PreviewPageSize.Width}"
+                            Height="{Binding PreviewPageSize.Height}"
+                            Background="#FFFFFF"
+                            CornerRadius="6"
+                            BorderThickness="1"
+                            BorderBrush="#CCC">
+                        <Border Margin="{Binding PreviewMargins}"
+                                BorderBrush="#4CAF50"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                IsHitTestVisible="False"/>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="1"
+                    Grid.Column="1"
+                    Spacing="16"
+                    HorizontalAlignment="Left">
+            <Border BorderBrush="#DDD"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12"
+                    Width="220">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Options" FontWeight="SemiBold"/>
+                    <CheckBox Content="Show header/footer"
+                              IsChecked="{Binding ShowHeaderFooter}"/>
+                    <CheckBox Content="Use printable area"
+                              IsChecked="{Binding UsePrintableArea}"/>
+                    <CheckBox Content="Center horizontally"
+                              IsChecked="{Binding CenterHorizontally}"/>
+                    <CheckBox Content="Center vertically"
+                              IsChecked="{Binding CenterVertically}"/>
+                </StackPanel>
+            </Border>
+
+            <Border BorderBrush="#DDD"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12"
+                    Width="220">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Layout" FontWeight="SemiBold"/>
+                    <ComboBox ItemsSource="{Binding LayoutKinds}"
+                              SelectedItem="{Binding SelectedLayoutKind}"
+                              Width="180"/>
+
+                    <StackPanel Spacing="8"
+                                IsVisible="{Binding IsNUpSelected}">
+                        <TextBlock Text="N-up settings" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="8"
+                                    HorizontalAlignment="Left">
+                            <StackPanel>
+                                <TextBlock Text="Rows"/>
+                                <NumericUpDown Minimum="1"
+                                               Maximum="16"
+                                               Value="{Binding NUpRows}"
+                                               Width="80"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Columns"/>
+                                <NumericUpDown Minimum="1"
+                                               Maximum="16"
+                                               Value="{Binding NUpColumns}"
+                                               Width="80"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Order"/>
+                            <ComboBox ItemsSource="{Binding NUpOrders}"
+                                      SelectedItem="{Binding NUpOrder}"
+                                      Width="180"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8"
+                                IsVisible="{Binding IsBookletSelected}">
+                        <TextBlock Text="Booklet settings" FontWeight="SemiBold"/>
+                        <CheckBox Content="Bind on long edge"
+                                  IsChecked="{Binding BookletBindLongEdge}"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8"
+                                IsVisible="{Binding IsPosterSelected}">
+                        <TextBlock Text="Poster settings" FontWeight="SemiBold"/>
+                        <StackPanel>
+                            <TextBlock Text="Tile count"/>
+                            <NumericUpDown Minimum="1"
+                                           Maximum="64"
+                                           Value="{Binding PosterTileCount}"
+                                           Width="120"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" Spacing="8"
+                        HorizontalAlignment="Right">
+                <Button Content="Cancel"
+                        Width="90"
+                        Command="{Binding CancelCommand}"/>
+                <Button Content="Apply"
+                        Width="90"
+                        Command="{Binding ApplyCommand}"
+                        IsEnabled="{Binding CanApply}"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

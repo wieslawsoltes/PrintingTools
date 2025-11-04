@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>true</IsPackable>
+    <PackageId>PrintingTools.Windows</PackageId>
+    <Description>Windows adapter for PrintingTools providing Win32 print queue integration, capability discovery, and XPS/PDF rendering.</Description>
+    <PackageTags>printing;windows;xps;avalonia</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrintingTools.Core\PrintingTools.Core.csproj" />
+    <PackageReference Include="Avalonia.Skia" />
+    <PackageReference Include="SkiaSharp" />
+  </ItemGroup>
+
+</Project>

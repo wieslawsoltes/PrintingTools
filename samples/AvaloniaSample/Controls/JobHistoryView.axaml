@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AvaloniaSample"
+             x:CompileBindings="False"
+             x:Class="AvaloniaSample.Controls.JobHistoryView">
+    <Border BorderBrush="#22000000"
+            BorderThickness="1"
+            CornerRadius="4"
+            Padding="12">
+        <StackPanel Spacing="8">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="8"
+                        VerticalAlignment="Center">
+                <TextBlock Text="Job History"
+                           FontSize="16"
+                           FontWeight="SemiBold"/>
+                <Button Content="Clear"
+                        Width="72"
+                        Command="{Binding ClearHistoryCommand}"/>
+            </StackPanel>
+            <ListBox ItemsSource="{Binding JobHistory}"
+                     HorizontalAlignment="Stretch"
+                     BorderBrush="#33000000"
+                     BorderThickness="1"
+                     Height="220">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}"
+                                       FontSize="12"
+                                       Foreground="#666"/>
+                            <TextBlock Text="{Binding Kind}"
+                                       FontWeight="SemiBold"
+                                       FontSize="12"/>
+                            <TextBlock Text="{Binding Message}"
+                                       TextWrapping="Wrap"
+                                       FontSize="12"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+    </Border>
+</UserControl>

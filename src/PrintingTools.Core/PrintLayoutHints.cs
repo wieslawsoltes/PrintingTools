@@ -32,6 +32,10 @@ public class PrintLayoutHints
         AvaloniaProperty.RegisterAttached<PrintLayoutHints, Visual, Size?>(
             "TargetPageSize", inherits: true);
 
+    public static readonly AttachedProperty<Rect?> SelectionBoundsProperty =
+        AvaloniaProperty.RegisterAttached<PrintLayoutHints, Visual, Rect?>(
+            "SelectionBounds", inherits: true);
+
     public static bool GetIsPrintable(Visual element) =>
         element.GetValue(IsPrintableProperty);
 
@@ -62,6 +66,12 @@ public class PrintLayoutHints
     public static void SetTargetPageSize(Visual element, Size? value) =>
         element.SetValue(TargetPageSizeProperty, value);
 
+    public static Rect? GetSelectionBounds(Visual element) =>
+        element.GetValue(SelectionBoundsProperty);
+
+    public static void SetSelectionBounds(Visual element, Rect? value) =>
+        element.SetValue(SelectionBoundsProperty, value);
+
     /// <summary>
     /// Creates <see cref="PrintPageSettings"/> from the attached properties on the supplied visual.
     /// </summary>
@@ -71,7 +81,9 @@ public class PrintLayoutHints
         var scale = GetScale(visual);
         var targetSize = GetTargetPageSize(visual);
 
-        if (margins is null && scale is null && targetSize is null)
+        var selectionBounds = GetSelectionBounds(visual);
+
+        if (margins is null && scale is null && targetSize is null && selectionBounds is null)
         {
             return fallback;
         }
@@ -80,7 +92,8 @@ public class PrintLayoutHints
         {
             Margins = margins ?? fallback.Margins,
             Scale = scale ?? fallback.Scale,
-            TargetSize = targetSize ?? fallback.TargetSize
+            TargetSize = targetSize ?? fallback.TargetSize,
+            SelectionBounds = selectionBounds ?? fallback.SelectionBounds
         };
     }
 }

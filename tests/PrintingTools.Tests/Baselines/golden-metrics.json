@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "StandardTicket",
+      "pageCount": 1,
+      "metricsHash": "9C03550BB5D852D435B1384B88D180825BC03B3AB12E8886DAA10683D0CACFFE"
+    },
+    {
+      "name": "BookletPreview",
+      "pageCount": 2,
+      "metricsHash": "DA282D9C01D3EE2C4BC3C5539AD2A52CEB157DB0023316C0405D47A60EFD74C0"
+    },
+    {
+      "name": "PosterLayout",
+      "pageCount": 4,
+      "metricsHash": "0E4162DC6A78A911E8FBF99C55CE9F9C6CE456CFD4FD7523C1D7CB62550A0458"
+    }
+  ]
+}

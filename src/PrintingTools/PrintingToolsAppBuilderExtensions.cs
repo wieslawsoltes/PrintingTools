@@ -2,6 +2,8 @@ using System;
 using Avalonia;
 using PrintingTools.Core;
 using PrintingTools.MacOS;
+using PrintingTools.Linux;
+using PrintingTools.Windows;
 
 namespace PrintingTools;
 
@@ -14,19 +16,34 @@ public static class PrintingToolsAppBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        var options = new PrintingToolsOptions();
-        configure?.Invoke(options);
-        var capturedOptions = options.Clone();
+        var baseOptions = new PrintingToolsOptions();
+        configure?.Invoke(baseOptions);
 
-        var factory = new MacPrintAdapterFactory();
+        var linuxFactory = new LinuxPrintAdapterFactory();
+        var macFactory = new MacPrintAdapterFactory();
+        var windowsFactory = new Win32PrintAdapterFactory();
 
         return builder.AfterSetup(_ =>
         {
-            PrintServiceRegistry.Configure(capturedOptions);
-            if (capturedOptions.AdapterFactory is null && factory.IsSupported)
+            var options = baseOptions.Clone();
+
+            if (options.AdapterFactory is null)
             {
-                capturedOptions.AdapterFactory = () => factory.CreateAdapter()!;
+                if (windowsFactory.IsSupported)
+                {
+                    options.AdapterFactory = () => windowsFactory.CreateAdapter() ?? throw new PlatformNotSupportedException("Windows printing is unavailable.");
+                }
+                else if (linuxFactory.IsSupported)
+                {
+                    options.AdapterFactory = () => linuxFactory.CreateAdapter() ?? throw new PlatformNotSupportedException("Linux printing is unavailable.");
+                }
+                else if (macFactory.IsSupported)
+                {
+                    options.AdapterFactory = () => macFactory.CreateAdapter() ?? throw new PlatformNotSupportedException("macOS printing is unavailable.");
+                }
             }
+
+            PrintServiceRegistry.Configure(options);
         });
     }
 

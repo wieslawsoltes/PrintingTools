@@ -3,6 +3,10 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>PrintingTools.UI</PackageId>
+    <Description>Avalonia UI components for PrintingTools, including page setup dialogs, preview windows, and supporting view models.</Description>
+    <PackageTags>printing;avalonia;ui;preview</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

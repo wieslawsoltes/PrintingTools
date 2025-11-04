@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Avalonia;
+using PrintingTools.Core.Pagination;
 
 namespace PrintingTools.Core;
 
@@ -10,11 +11,34 @@ namespace PrintingTools.Core;
 /// </summary>
 public sealed class PrintSession
 {
-    public PrintSession(PrintDocument document, PrintOptions? options = null, string? description = null)
+    private IPrintPaginator _paginator;
+    private bool _paginatorExplicit;
+
+    public PrintSession(
+        PrintDocument document,
+        PrintOptions? options = null,
+        string? description = null,
+        PrinterInfo? printer = null,
+        PrintTicketModel? ticket = null,
+        PrintCapabilities? capabilities = null,
+        IPrintPaginator? paginator = null)
     {
         Document = document ?? throw new ArgumentNullException(nameof(document));
         Options = (options ?? new PrintOptions()).Clone();
         Description = description;
+        Printer = printer;
+        Ticket = (ticket ?? PrintTicketModel.CreateDefault()).Clone();
+        Capabilities = capabilities;
+        if (paginator is not null)
+        {
+            _paginator = paginator;
+            _paginatorExplicit = true;
+        }
+        else
+        {
+            _paginator = Pagination.DefaultPrintPaginator.Instance;
+            _paginatorExplicit = false;
+        }
     }
 
     /// <summary>
@@ -31,6 +55,75 @@ public sealed class PrintSession
     /// Gets an optional job description passed through to the native print UI.
     /// </summary>
     public string? Description { get; }
+
+    /// <summary>
+    /// Gets the printer selected for this session, if any.
+    /// </summary>
+    public PrinterInfo? Printer { get; private set; }
+
+    /// <summary>
+    /// Gets the ticket negotiated for this session.
+    /// </summary>
+    public PrintTicketModel Ticket { get; private set; }
+
+    /// <summary>
+    /// Gets the capabilities associated with the selected printer, if known.
+    /// </summary>
+    public PrintCapabilities? Capabilities { get; private set; }
+
+    public IPrintPaginator Paginator => _paginator;
+
+    public bool HasExplicitPaginator => _paginatorExplicit;
+
+    public event EventHandler<PrintJobEventArgs>? JobStatusChanged;
+
+    internal void AssignPrinter(PrinterInfo printer)
+    {
+        Printer = printer ?? throw new ArgumentNullException(nameof(printer));
+    }
+
+    internal void UpdateCapabilities(PrintCapabilities capabilities)
+    {
+        Capabilities = capabilities ?? throw new ArgumentNullException(nameof(capabilities));
+    }
+
+    internal void UpdateTicket(PrintTicketModel ticket, bool adoptWarnings = true)
+    {
+        ArgumentNullException.ThrowIfNull(ticket);
+        Ticket = ticket.Clone();
+        if (adoptWarnings)
+        {
+            Ticket.AdoptWarningsFrom(ticket);
+        }
+    }
+
+    internal void SetPaginator(IPrintPaginator paginator, bool markExplicit = true)
+    {
+        _paginator = paginator ?? throw new ArgumentNullException(nameof(paginator));
+        if (markExplicit)
+        {
+            _paginatorExplicit = true;
+        }
+    }
+
+    internal void EnsurePaginator(IPrintPaginator fallback)
+    {
+        if (!_paginatorExplicit && fallback is not null)
+        {
+            _paginator = fallback;
+        }
+    }
+
+    internal void NotifyJobEvent(PrintJobEventKind kind, string? message = null, Exception? exception = null)
+    {
+        JobStatusChanged?.Invoke(this, new PrintJobEventArgs(kind, message, exception));
+    }
+
+    public IReadOnlyList<PrintPage> Paginate(CancellationToken cancellationToken = default)
+    {
+        var pages = _paginator.Paginate(Document, Options, cancellationToken);
+        return Pagination.PrintPaginationUtilities.ApplyPageRange(pages, Options.PageRange);
+    }
 }
 
 /// <summary>
@@ -214,12 +307,15 @@ public sealed class PrintPageSettings
 
     public double Scale { get; init; } = 1d;
 
+    public Rect? SelectionBounds { get; init; }
+
     public PrintPageSettings Clone() =>
         new()
         {
             TargetSize = TargetSize,
             Margins = Margins,
-            Scale = Scale
+            Scale = Scale,
+            SelectionBounds = SelectionBounds
         };
 }
 
@@ -267,4 +363,29 @@ internal sealed class VisualPrintPageEnumerator : IPrintPageEnumerator
         var metrics = PrintPageMetrics.Create(_visual, _settings);
         return new PrintPage(_visual, _settings, _pageBreakAfter, metrics);
     }
+}
+
+public enum PrintJobEventKind
+{
+    Unknown = 0,
+    Started = 1,
+    Completed = 2,
+    Failed = 3,
+    Cancelled = 4
+}
+
+public sealed class PrintJobEventArgs : EventArgs
+{
+    public PrintJobEventArgs(PrintJobEventKind kind, string? message, Exception? exception)
+    {
+        Kind = kind;
+        Message = message;
+        Exception = exception;
+    }
+
+    public PrintJobEventKind Kind { get; }
+
+    public string? Message { get; }
+
+    public Exception? Exception { get; }
 }

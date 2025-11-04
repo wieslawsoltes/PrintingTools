@@ -12,6 +12,7 @@ fi
 clang -fobjc-arc -ObjC -shared -fobjc-link-runtime \
   -framework AppKit \
   -framework Foundation \
+  -framework PDFKit \
   "$SCRIPT_DIR/PrintingToolsMacBridge.mm" \
   -o "$OUTPUT"
 

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Linq;
 using PrintingTools.Core;
 
 namespace PrintingTools.UI.ViewModels;
@@ -14,7 +15,7 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
     {
         Pages = new ObservableCollection<PreviewPageViewModel>();
         Pages.CollectionChanged += (_, __) => OnPropertyChanged(nameof(PageCount));
-        Printers = new ObservableCollection<string>();
+        Printers = new ObservableCollection<PrinterInfo>();
         Printers.CollectionChanged += OnPrintersChanged;
     }
 
@@ -39,14 +40,16 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
 
     public ObservableCollection<PreviewPageViewModel> Pages { get; }
 
-    public ObservableCollection<string> Printers { get; }
+    public ObservableCollection<PrinterInfo> Printers { get; }
 
-    private string? _selectedPrinter;
-    public string? SelectedPrinter
+    private PrinterInfo? _selectedPrinter;
+    public PrinterInfo? SelectedPrinter
     {
         get => _selectedPrinter;
         set => SetProperty(ref _selectedPrinter, value);
     }
+
+    public string? SelectedPrinterDisplayName => SelectedPrinter?.Name;
 
     public bool HasPrinters => Printers.Count > 0;
 
@@ -115,22 +118,53 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
         }
     }
 
-    public void LoadPrinters(IEnumerable<string> printers)
+    public void LoadPrinters(
+        IEnumerable<PrinterInfo> printers,
+        PrinterId? preferredPrinterId = null,
+        string? preferredPrinterName = null)
     {
+        if (printers is null)
+        {
+            throw new ArgumentNullException(nameof(printers));
+        }
+
         Printers.CollectionChanged -= OnPrintersChanged;
-        Printers.Clear();
-        foreach (var printer in printers)
+        try
         {
-            Printers.Add(printer);
-        }
-        Printers.CollectionChanged += OnPrintersChanged;
+            var previousSelection = SelectedPrinter?.Id;
 
-        if (string.IsNullOrWhiteSpace(SelectedPrinter) && Printers.Count > 0)
+            Printers.Clear();
+            foreach (var printer in printers)
+            {
+                Printers.Add(printer);
+            }
+
+            PrinterInfo? selection = null;
+
+            if (preferredPrinterId is { } preferredId)
+            {
+                selection = Printers.FirstOrDefault(p => p.Id == preferredId);
+            }
+
+            if (selection is null && previousSelection is { } previousId)
+            {
+                selection = Printers.FirstOrDefault(p => p.Id == previousId);
+            }
+
+            if (selection is null && !string.IsNullOrWhiteSpace(preferredPrinterName))
+            {
+                selection = Printers.FirstOrDefault(p =>
+                    string.Equals(p.Name, preferredPrinterName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            SelectedPrinter = selection ?? Printers.FirstOrDefault();
+        }
+        finally
         {
-            SelectedPrinter = Printers[0];
+            Printers.CollectionChanged += OnPrintersChanged;
+            OnPropertyChanged(nameof(HasPrinters));
+            OnPropertyChanged(nameof(SelectedPrinterDisplayName));
         }
-
-        OnPropertyChanged(nameof(HasPrinters));
     }
 
     public void RequestAction(PreviewAction action) =>
@@ -147,6 +181,10 @@ public sealed class PrintPreviewViewModel : INotifyPropertyChanged
 
         storage = value;
         OnPropertyChanged(propertyName);
+        if (propertyName == nameof(SelectedPrinter))
+        {
+            OnPropertyChanged(nameof(SelectedPrinterDisplayName));
+        }
         return true;
     }
 

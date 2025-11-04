@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>PrintingTools.Linux</PackageId>
+    <Description>Linux CUPS adapter for PrintingTools with GTK/portal dialogs, printer discovery, and managed PDF submission.</Description>
+    <PackageTags>printing;linux;cups;gtk;avalonia</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GtkSharp" />
+    <ProjectReference Include="..\PrintingTools.Core\PrintingTools.Core.csproj" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Skia" />
+    <PackageReference Include="SkiaSharp" />
+  </ItemGroup>
+
+</Project>

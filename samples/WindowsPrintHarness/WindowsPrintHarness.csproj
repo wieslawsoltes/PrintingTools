@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>false</UseWindowsForms>
+    <AssemblyName>PrintingTools.WindowsPrintHarness</AssemblyName>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PrintingTools.Core\PrintingTools.Core.csproj" />
+    <ProjectReference Include="..\..\src\PrintingTools.Windows\PrintingTools.Windows.csproj" />
+  </ItemGroup>
+
+</Project>

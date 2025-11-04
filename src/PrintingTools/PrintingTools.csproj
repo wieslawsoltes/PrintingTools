@@ -4,12 +4,21 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>PrintingTools</PackageId>
+    <Description>Avalonia integration helpers and platform adapter bootstrapper for PrintingTools, wiring Windows, macOS, and Linux implementations.</Description>
+    <PackageTags>printing;avalonia;cross-platform</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PrintingTools.Core\PrintingTools.Core.csproj" />
+    <ProjectReference Include="..\PrintingTools.Linux\PrintingTools.Linux.csproj" />
     <ProjectReference Include="..\PrintingTools.MacOS\PrintingTools.MacOS.csproj" />
     <PackageReference Include="Avalonia" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrintingTools.Windows\PrintingTools.Windows.csproj" />
   </ItemGroup>
 
 </Project>

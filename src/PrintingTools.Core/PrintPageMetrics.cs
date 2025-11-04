@@ -92,6 +92,13 @@ public sealed class PrintPageMetrics
         ArgumentNullException.ThrowIfNull(settings);
 
         var visualBounds = visual.Bounds;
+        var contentOffset = new Point();
+
+        if (settings.SelectionBounds is { } selection && selection.Width > 0 && selection.Height > 0)
+        {
+            visualBounds = selection;
+            contentOffset = selection.Position;
+        }
 
         var pageSize = settings.TargetSize ?? visualBounds.Size;
         if (pageSize.Width <= 0 || pageSize.Height <= 0)
@@ -136,7 +143,7 @@ public sealed class PrintPageMetrics
             pagePixelSize,
             contentPixelRect,
             visualBounds,
-            new Point());
+            contentOffset);
     }
 
     public PrintPageMetrics WithContentOffset(Point offset) =>
@@ -150,6 +157,41 @@ public sealed class PrintPageMetrics
             ContentPixelRect,
             VisualBounds,
             offset);
+
+    public PrintPageMetrics WithSelection(Rect selection)
+    {
+        if (selection.Width <= 0 || selection.Height <= 0)
+        {
+            return this;
+        }
+
+        var margins = Margins;
+        var pageSize = new Size(
+            Math.Max(selection.Width + margins.Left + margins.Right, 1d),
+            Math.Max(selection.Height + margins.Top + margins.Bottom, 1d));
+
+        var contentRect = new Rect(new Point(margins.Left, margins.Top), selection.Size);
+
+        var pagePixelSize = CreatePixelSize(pageSize, Dpi);
+        var contentPixelRect = new PixelRect(
+            DipToPixels(contentRect.X, Dpi.X),
+            DipToPixels(contentRect.Y, Dpi.Y),
+            Math.Max(1, DipToPixels(selection.Width, Dpi.X)),
+            Math.Max(1, DipToPixels(selection.Height, Dpi.Y)));
+
+        var visualBounds = new Rect(selection.Position, selection.Size);
+
+        return new PrintPageMetrics(
+            pageSize,
+            margins,
+            contentRect,
+            ContentScale,
+            Dpi,
+            pagePixelSize,
+            contentPixelRect,
+            visualBounds,
+            selection.Position);
+    }
 
     private static PixelSize CreatePixelSize(Size size, Vector dpi)
     {

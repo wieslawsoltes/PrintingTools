@@ -4,6 +4,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>PrintingTools.Core</PackageId>
+    <Description>Core cross-platform services for PrintingTools, including print sessions, pagination, diagnostics, and option models.</Description>
+    <PackageTags>printing;avalonia;cross-platform;pagination</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
