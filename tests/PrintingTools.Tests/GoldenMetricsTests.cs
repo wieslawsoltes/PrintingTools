@@ -18,6 +18,7 @@ namespace PrintingTools.Tests;
 
 public class GoldenMetricsTests
 {
+    private const string HashLineEnding = "\n";
     private readonly ITestOutputHelper _output;
 
     public GoldenMetricsTests(ITestOutputHelper output)
@@ -73,7 +74,8 @@ public class GoldenMetricsTests
     private static string ComputeMetricsHash(IReadOnlyList<PrintPage> pages)
     {
         var builder = new StringBuilder();
-        builder.AppendLine(pages.Count.ToString());
+        builder.Append(pages.Count.ToString(CultureInfo.InvariantCulture));
+        builder.Append(HashLineEnding);
 
         for (var i = 0; i < pages.Count; i++)
         {
@@ -81,7 +83,7 @@ public class GoldenMetricsTests
             builder.Append(i);
             builder.Append('|');
             AppendMetrics(builder, metrics);
-            builder.AppendLine();
+            builder.Append(HashLineEnding);
         }
 
         var bytes = Encoding.UTF8.GetBytes(builder.ToString());
