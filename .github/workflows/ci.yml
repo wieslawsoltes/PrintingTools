@@ -1,19 +1,24 @@
-name: Release
+name: CI
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-  NUGET_SOURCE: https://api.nuget.org/v3/index.json
 
 jobs:
-  native-macos:
+  native-build-macos:
     name: Native Build (macOS)
     runs-on: macos-latest
     steps:
@@ -189,12 +194,10 @@ jobs:
           path: artifacts/windows
           retention-days: 7
 
-  pack-and-publish:
-    name: Pack & Publish
+  pack:
+    name: Pack NuGet
     runs-on: ubuntu-latest
-    needs: [native-macos, build, harness-linux, harness-macos, harness-windows]
-    env:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+    needs: [native-build-macos, build, harness-linux, harness-macos, harness-windows]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -210,10 +213,6 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-
       - name: Install macOS native bridge
         run: |
           mkdir -p src/PrintingTools.MacOS/native/OSX
@@ -223,7 +222,7 @@ jobs:
         run: dotnet restore PrintingTool.sln
 
       - name: Pack solution
-        run: dotnet pack PrintingTool.sln -c Release --no-restore -o artifacts/packages -p:Version=${{ steps.version.outputs.VERSION }} -p:ContinuousIntegrationBuild=true
+        run: dotnet pack PrintingTool.sln -c Release --no-restore -o artifacts/packages -p:ContinuousIntegrationBuild=true
 
       - name: Verify packages
         run: |
@@ -244,34 +243,9 @@ jobs:
 
           unzip -l artifacts/packages/PrintingTools.MacOS.*.nupkg | grep -F "runtimes/osx/native/PrintingToolsMacBridge.dylib"
 
-      - name: Upload release packages
+      - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
         with:
-          name: release-packages
+          name: packages
           path: artifacts/packages
           retention-days: 7
-
-      - name: Publish NuGet packages
-        if: ${{ env.NUGET_API_KEY != '' }}
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-
-          for package in artifacts/packages/*.nupkg; do
-            dotnet nuget push "$package" --api-key "$NUGET_API_KEY" --source "$NUGET_SOURCE" --skip-duplicate
-          done
-
-          for symbols in artifacts/packages/*.snupkg; do
-            dotnet nuget push "$symbols" --api-key "$NUGET_API_KEY" --source "$NUGET_SOURCE" --skip-duplicate
-          done
-
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            artifacts/packages/*.nupkg
-            artifacts/packages/*.snupkg
-          tag_name: ${{ github.ref_name }}
-          name: PrintingTools ${{ steps.version.outputs.VERSION }}
-          generate_release_notes: true
-          prerelease: ${{ contains(steps.version.outputs.VERSION, '-') }}

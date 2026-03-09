@@ -4,15 +4,19 @@
     <VersionPrefix Condition="'$(VersionPrefix)' == ''">0.1.0</VersionPrefix>
     <Authors Condition="'$(Authors)' == ''">PrintingTools Contributors</Authors>
     <Company Condition="'$(Company)' == ''">PrintingTools</Company>
+    <Copyright Condition="'$(Copyright)' == ''">Copyright © 2026 PrintingTools Contributors</Copyright>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/wieslawsoltes/PrintingTool</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/wieslawsoltes/PrintingTool</PackageProjectUrl>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/wieslawsoltes/PrintingTools</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/wieslawsoltes/PrintingTools</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Deterministic>true</Deterministic>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
     <GenerateDocumentationFile Condition="'$(IsPackable)' == 'true'">true</GenerateDocumentationFile>
   </PropertyGroup>
 

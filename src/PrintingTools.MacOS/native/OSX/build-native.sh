@@ -9,7 +9,12 @@ if [[ "$(uname)" != "Darwin" ]]; then
   exit 0
 fi
 
-clang -fobjc-arc -ObjC -shared -fobjc-link-runtime \
+SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
+
+clang -fobjc-arc -ObjC -dynamiclib \
+  -arch arm64 \
+  -arch x86_64 \
+  -isysroot "$SDKROOT" \
   -framework AppKit \
   -framework Foundation \
   -framework PDFKit \

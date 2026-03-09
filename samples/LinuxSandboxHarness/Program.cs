@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.VisualTree;
@@ -104,8 +104,8 @@ internal static class Program
             return 1;
         }
 
-    Console.WriteLine("Harness completed.");
-    return 0;
+        Console.WriteLine("Harness completed.");
+        return 0;
     }
 
     private static int ParseStressIterations(string? stressOverride)
@@ -331,7 +331,8 @@ internal static class Program
         {
             Rows = 1,
             Columns = 3,
-            Spacing = 12,
+            RowSpacing = 12,
+            ColumnSpacing = 12,
             Children =
             {
                 CreateStatisticTile("Documents", "Flow/Fixed/Visual"),
@@ -393,12 +394,9 @@ internal static class Program
                 }
             }
 
-            if (visual is IVisual visualNode)
+            foreach (var child in visual.GetVisualChildren())
             {
-                foreach (var child in visualNode.VisualChildren)
-                {
-                    Traverse(child);
-                }
+                Traverse(child);
             }
         }
 
@@ -495,5 +493,10 @@ internal static class Program
         public string MetricsHash { get; set; } = string.Empty;
     }
 
-    private readonly record struct AccessibilityReport(int TotalControls, int MissingNames);
+    private sealed class AccessibilityReport
+    {
+        public int TotalControls { get; set; }
+
+        public int MissingNames { get; set; }
+    }
 }

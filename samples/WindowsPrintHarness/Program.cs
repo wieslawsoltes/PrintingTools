@@ -69,7 +69,7 @@ internal static class Program
         var options = new PrintingToolsOptions
         {
             EnablePreview = true,
-            AdapterFactory = () => factory.CreateAdapter(),
+            AdapterFactory = () => factory.CreateAdapter()!,
             DiagnosticSink = evt => Console.WriteLine($"[{evt.Timestamp:O}] {evt.Category}: {evt.Message}")
         };
 
@@ -281,15 +281,12 @@ internal static class Program
 
     private static IEnumerable<Visual> GetVisualDescendants(this Visual visual)
     {
-        if (visual is IVisual parent)
+        foreach (var child in visual.GetVisualChildren())
         {
-            foreach (var child in parent.VisualChildren)
+            yield return child;
+            foreach (var grandChild in GetVisualDescendants(child))
             {
-                yield return child;
-                foreach (var grandChild in GetVisualDescendants(child))
-                {
-                    yield return grandChild;
-                }
+                yield return grandChild;
             }
         }
     }
@@ -309,12 +306,9 @@ internal static class Program
                 }
             }
 
-            if (visual is IVisual visualNode)
+            foreach (var child in visual.GetVisualChildren())
             {
-                foreach (var child in visualNode.VisualChildren)
-                {
-                    Traverse(child);
-                }
+                Traverse(child);
             }
         }
 
@@ -411,5 +405,10 @@ internal static class Program
         public string MetricsHash { get; set; } = string.Empty;
     }
 
-    private readonly record struct AccessibilityReport(int TotalControls, int MissingNames);
+    private sealed class AccessibilityReport
+    {
+        public int TotalControls { get; set; }
+
+        public int MissingNames { get; set; }
+    }
 }
