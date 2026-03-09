@@ -172,7 +172,7 @@
 
 8. [x] Phase 8 – Validation & Quality  
    - **Status:** Completed  
-   - **Highlights:** Added scenario fixtures with deterministic golden metrics (`tests/PrintingTools.Tests/GoldenMetricsTests.cs`), wired Windows/macOS/Linux harness outputs into CI with automated threshold validation (`.github/workflows/printingtools-harness.yml`), and instrumented harnesses to record accessibility, stress, and performance data in JSON snapshots. Golden PDF exports now ship alongside metrics for every pull request.  
+   - **Highlights:** Added scenario fixtures with deterministic golden metrics (`tests/PrintingTools.Tests/GoldenMetricsTests.cs`), wired Windows/macOS/Linux harness outputs into CI with automated threshold validation (`.github/workflows/ci.yml`), and instrumented harnesses to record accessibility, stress, and performance data in JSON snapshots. Golden PDF exports now ship alongside metrics for every pull request.  
 8.1. [x] Port WPF sample scenarios (FlowDocument, FixedDocument, Visuals) into Avalonia automated tests with rendering comparisons.  
 8.2. [x] Create golden image/vector baselines per platform, running CI print-to-PDF jobs on Windows and macOS runners.  
 8.3. [x] Stress-test large documents and complex visuals (gradients, transparency, custom controls) to ensure paginator and render pipelines scale.  

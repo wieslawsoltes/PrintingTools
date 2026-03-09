@@ -245,16 +245,7 @@ internal static class Program
             }
         };
 
-        AutomationProperties.SetName(panel, "macOS Harness Panel");
-        foreach (var child in panel.GetVisualDescendants())
-        {
-            if (child is Control control && control is TextBlock text)
-            {
-                AutomationProperties.SetName(control, text.Text ?? "Text");
-            }
-        }
-
-        return new Border
+        var border = new Border
         {
             Width = 612,
             Height = 792,
@@ -263,6 +254,19 @@ internal static class Program
             BorderThickness = new Thickness(1),
             Child = panel
         };
+
+        AutomationProperties.SetName(border, "macOS Harness Root");
+        foreach (var child in border.GetVisualDescendants())
+        {
+            if (child is Control control && control is TextBlock text)
+            {
+                AutomationProperties.SetName(control, text.Text ?? "Text");
+            }
+        }
+
+        border.Measure(new Size(border.Width, border.Height));
+        border.Arrange(new Rect(0, 0, border.Width, border.Height));
+        return border;
     }
 
     private static IEnumerable<Visual> GetVisualDescendants(this Visual visual)

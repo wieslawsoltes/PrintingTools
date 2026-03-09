@@ -16,6 +16,7 @@ using Xunit.Sdk;
 
 namespace PrintingTools.Tests;
 
+[Collection("CultureSensitive")]
 public class GoldenMetricsTests
 {
     private const string HashLineEnding = "\n";
@@ -28,6 +29,20 @@ public class GoldenMetricsTests
 
     [Fact]
     public void ScenarioMetricsMatchBaseline()
+    {
+        AssertScenarioMetricsMatchBaseline();
+    }
+
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("pl-PL")]
+    [InlineData("ar-SA")]
+    public void ScenarioMetricsMatchBaselineAcrossCultures(string cultureName)
+    {
+        RunWithCulture(cultureName, AssertScenarioMetricsMatchBaseline);
+    }
+
+    private void AssertScenarioMetricsMatchBaseline()
     {
         var manifest = LoadBaseline();
         var context = new ValidationScenarioContext();
@@ -50,6 +65,25 @@ public class GoldenMetricsTests
 
             Assert.Equal(baseline.PageCount, pages.Count);
             Assert.Equal(baseline.MetricsHash, metricsHash);
+        }
+    }
+
+    private static void RunWithCulture(string cultureName, Action action)
+    {
+        var originalCulture = CultureInfo.CurrentCulture;
+        var originalUICulture = CultureInfo.CurrentUICulture;
+        var culture = CultureInfo.GetCultureInfo(cultureName);
+
+        try
+        {
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+            action();
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+            CultureInfo.CurrentUICulture = originalUICulture;
         }
     }
 

@@ -67,4 +67,4 @@ The file `tests/PrintingTools.Tests/Baselines/harness-thresholds.json` governs a
 - [ ] `dotnet test tests/PrintingTools.Tests/PrintingTools.Tests.csproj` passes locally.
 - [ ] PR description summarises metrics deltas and links to any supporting screenshots.
 
-Maintaining these baselines ensures the printing MVP remains stable across adapters and that regressions are caught before they reach production. Refer to `.github/workflows/printingtools-harness.yml` for CI specifics and `docs/printing-sample-walkthroughs.md` for broader harness usage.
+Maintaining these baselines ensures the printing MVP remains stable across adapters and that regressions are caught before they reach production. Refer to `.github/workflows/ci.yml` for CI specifics and `docs/printing-sample-walkthroughs.md` for broader harness usage.

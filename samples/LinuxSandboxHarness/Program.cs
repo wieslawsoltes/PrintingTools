@@ -289,6 +289,16 @@ internal static class Program
         };
 
         AutomationProperties.SetName(border, "Linux Harness Root");
+        foreach (var child in border.GetVisualDescendants())
+        {
+            if (child is Control control && control is TextBlock textBlock)
+            {
+                AutomationProperties.SetName(control, textBlock.Text ?? "Text");
+            }
+        }
+
+        border.Measure(new Size(border.Width, border.Height));
+        border.Arrange(new Rect(0, 0, border.Width, border.Height));
         return border;
     }
 

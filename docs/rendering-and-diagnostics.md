@@ -23,7 +23,7 @@
 ## Regression Coverage
 - **Harnesses**: `MacSandboxHarness` and `LinuxSandboxHarness` route diagnostics to STDOUT and exercise native dialogs, managed fallbacks, and PDF output. Use these to capture platform-specific logs before filing parity issues.
 - **Golden outputs**: Planned workflow emits managed PDFs per OS and stores them under `artifacts/printing/baselines/<platform>/<scenario>.pdf`. Compare via checksum or vector diff to catch rendering regressions.
-- **CI integration**: The `PrintingTools Harnesses` GitHub workflow executes Linux (`linux-harness`), macOS (`macos-harness` headless), and Windows (`windows-harness`) runs each commit; extend jobs with containerised CUPS mounts/notarized signing once available.
+- **CI integration**: The `CI` GitHub workflow (`.github/workflows/ci.yml`) executes the `Harness (Linux)`, `Harness (macOS)`, and `Harness (Windows)` jobs on each commit; extend those jobs with containerised CUPS mounts/notarized signing once available.
 - **Metrics**: Capture pagination/render timings and `PrintDiagnostics` counters during harness runs. Feed data into trend dashboards once CI integration lands.
 
 ## Next Steps

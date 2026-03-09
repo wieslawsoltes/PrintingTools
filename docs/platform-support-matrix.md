@@ -4,9 +4,9 @@ Tracks which operating systems, distributions, and packaging environments have b
 
 | Platform / Distro | UI Dialogs | CUPS / IPP Access | Managed PDF Export | Harness Coverage | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Windows 11 (x64) | ✅ Win32 print dialog (native) | ✅ Win32 spooler | ✅ XPS/PDF via Skia | `PrintingTools Harnesses` workflow (`windows-harness` job) | CI exports managed PDF artifacts; extend to cover native spool submission and dialog automation. |
+| Windows 11 (x64) | ✅ Win32 print dialog (native) | ✅ Win32 spooler | ✅ XPS/PDF via Skia | `CI` workflow (`Harness (Windows)` job) | CI exports managed PDF artifacts; extend to cover native spool submission and dialog automation. |
 | macOS 14 (arm64) | ✅ AppKit sheet (`NSPrintPanel`) | ✅ `NSPrintOperation` | ✅ Quartz PDF | `MacSandboxHarness` (headless CI + manual notarized runs) | Sandbox entitlement matrix captured in `docs/macos-sandbox-harness.md`; CI job captures preview diagnostics in headless mode. |
-| Ubuntu 22.04 (Wayland) | ✅ GTK portal fallback | ✅ CUPS socket | ✅ Managed PDF | `PrintingTools Harnesses` workflow (`linux-harness` job) | Validate Snap interface connections; capture portal logs. |
+| Ubuntu 22.04 (Wayland) | ✅ GTK portal fallback | ✅ CUPS socket | ✅ Managed PDF | `CI` workflow (`Harness (Linux)` job) | Validate Snap interface connections; capture portal logs. |
 | Fedora 39 (Wayland) | ⚠️ GTK dialog (needs portal validation) | ✅ CUPS | ✅ Managed PDF | Planned | Collect SELinux/AppArmor rules when harness executes. |
 | Arch Linux (X11) | ➖ Pending | ⚠️ CUPS (rootless) | ✅ Managed PDF | Planned | Target for continuous regression once Arch container image added. |
 | Flatpak (org.freedesktop.Platform 23.08) | ✅ Portal dialog (`GtkPrintUnixDialog`) | ⚠️ Requires `--filesystem=xdg-run/cups` | ✅ Managed PDF | `LinuxSandboxHarness` manifest | Capture results in parity log after first run. |

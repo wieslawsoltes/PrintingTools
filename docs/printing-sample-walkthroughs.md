@@ -65,7 +65,7 @@ dotnet run --project samples/LinuxSandboxHarness/LinuxSandboxHarness.csproj \
 - **Metrics**: Includes stress iteration timing and accessibility counts similar to the Windows harness.
 
 ## 5. CI Workflow Integration
-- `.github/workflows/printingtools-harness.yml` runs each harness per platform, uploads generated PDFs/logs, and executes `dotnet test` with platform-specific environment variables (`HARNESS_METRICS_PATH`, `HARNESS_PLATFORM`).
+- `.github/workflows/ci.yml` runs each harness per platform, uploads generated PDFs/logs, and executes `dotnet test` with platform-specific environment variables (`HARNESS_METRICS_PATH`, `HARNESS_PLATFORM`).
 - Threshold enforcement lives in `tests/PrintingTools.Tests/Baselines/harness-thresholds.json`. Adjust these values when legitimate performance changes are introduced.
 
 ## 6. Extending the Samples

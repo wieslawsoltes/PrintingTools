@@ -118,6 +118,7 @@ jobs:
 
       - name: Upload Linux harness artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: linux-harness
           path: artifacts/linux
@@ -153,6 +154,7 @@ jobs:
 
       - name: Upload macOS harness artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: macos-harness
           path: artifacts/macos
@@ -189,6 +191,7 @@ jobs:
 
       - name: Upload Windows harness artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: windows-harness
           path: artifacts/windows
