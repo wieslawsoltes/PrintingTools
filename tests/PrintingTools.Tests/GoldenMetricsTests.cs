@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -91,27 +92,27 @@ public class GoldenMetricsTests
     private static void AppendMetrics(StringBuilder builder, PrintPageMetrics metrics)
     {
         builder
-            .Append(metrics.PageSize.Width.ToString("F3"))
+            .Append(metrics.PageSize.Width.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.PageSize.Height.ToString("F3"))
+            .Append(metrics.PageSize.Height.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.Margins.Left.ToString("F3"))
+            .Append(metrics.Margins.Left.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.Margins.Top.ToString("F3"))
+            .Append(metrics.Margins.Top.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.Margins.Right.ToString("F3"))
+            .Append(metrics.Margins.Right.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.Margins.Bottom.ToString("F3"))
+            .Append(metrics.Margins.Bottom.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.ContentRect.Width.ToString("F3"))
+            .Append(metrics.ContentRect.Width.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.ContentRect.Height.ToString("F3"))
+            .Append(metrics.ContentRect.Height.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.ContentScale.ToString("F6"))
+            .Append(metrics.ContentScale.ToString("F6", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.Dpi.X.ToString("F3"))
+            .Append(metrics.Dpi.X.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.Dpi.Y.ToString("F3"))
+            .Append(metrics.Dpi.Y.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
             .Append(metrics.PagePixelSize.Width)
             .Append(',')
@@ -125,13 +126,13 @@ public class GoldenMetricsTests
             .Append(',')
             .Append(metrics.ContentPixelRect.Height)
             .Append(',')
-            .Append(metrics.VisualBounds.Width.ToString("F3"))
+            .Append(metrics.VisualBounds.Width.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.VisualBounds.Height.ToString("F3"))
+            .Append(metrics.VisualBounds.Height.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.ContentOffset.X.ToString("F3"))
+            .Append(metrics.ContentOffset.X.ToString("F3", CultureInfo.InvariantCulture))
             .Append(',')
-            .Append(metrics.ContentOffset.Y.ToString("F3"));
+            .Append(metrics.ContentOffset.Y.ToString("F3", CultureInfo.InvariantCulture));
     }
 
     private sealed class MetricsBaselineManifest
