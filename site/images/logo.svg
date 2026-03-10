@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
   <title id="title">PrintingTools logo</title>
-  <desc id="desc">Stylized printer icon with the PrintingTools wordmark.</desc>
+  <desc id="desc">Stylized printer icon.</desc>
   <defs>
     <linearGradient id="ptg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#1d63d8" />
@@ -14,6 +14,4 @@
   <rect x="34" y="58" width="28" height="3" rx="1.5" fill="#1d63d8" opacity="0.8" />
   <rect x="34" y="64" width="22" height="3" rx="1.5" fill="#1d63d8" opacity="0.6" />
   <circle cx="64" cy="56" r="3" fill="#1d63d8" />
-  <text x="108" y="43" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#0f172a">PrintingTools</text>
-  <text x="108" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#475569">Cross-platform .NET printing for Avalonia</text>
 </svg>
