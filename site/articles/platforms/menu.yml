@@ -1,0 +1,6 @@
+platforms:
+  - {path: readme.md, title: "Platforms"}
+  - {path: windows.md, title: "Windows"}
+  - {path: macos.md, title: "macOS"}
+  - {path: linux.md, title: "Linux"}
+  - {path: support-matrix.md, title: "Support Matrix"}

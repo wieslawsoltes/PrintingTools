@@ -4,6 +4,7 @@ Cross-platform .NET 10 printing toolkit for applications that need consistent pr
 
 [![CI](https://github.com/wieslawsoltes/PrintingTools/actions/workflows/ci.yml/badge.svg)](https://github.com/wieslawsoltes/PrintingTools/actions/workflows/ci.yml)
 [![Release](https://github.com/wieslawsoltes/PrintingTools/actions/workflows/release.yml/badge.svg)](https://github.com/wieslawsoltes/PrintingTools/actions/workflows/release.yml)
+[![Docs](https://github.com/wieslawsoltes/PrintingTools/actions/workflows/docs.yml/badge.svg)](https://github.com/wieslawsoltes/PrintingTools/actions/workflows/docs.yml)
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)](https://dotnet.microsoft.com)
 [![Avalonia](https://img.shields.io/badge/Avalonia-11.x-8b44ac)](https://avaloniaui.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/wieslawsoltes/PrintingTools/blob/main/LICENSE)
@@ -158,6 +159,7 @@ await manager.PrintAsync(session);
 
 ## Documentation
 
+- Documentation site: [wieslawsoltes.github.io/PrintingTools](https://wieslawsoltes.github.io/PrintingTools)
 - API reference: [docs/printing-api-reference.md](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/printing-api-reference.md)
 - Migration guide: [docs/printing-migration-guide.md](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/printing-migration-guide.md)
 - Platform notes: [Windows](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/windows-printing-notes.md), [macOS](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/macos-printing-notes.md), [Linux](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/linux-printing-notes.md)
@@ -165,9 +167,18 @@ await manager.PrintAsync(session);
 - Sample walkthroughs: [docs/printing-sample-walkthroughs.md](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/printing-sample-walkthroughs.md)
 - Architecture and planning notes: [phase2-architecture](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/phase2-architecture.md), [feature-parity-matrix](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/feature-parity-matrix.md), [wpf-printing-parity-plan](https://github.com/wieslawsoltes/PrintingTools/blob/main/docs/wpf-printing-parity-plan.md)
 
+Build docs locally:
+```bash
+./build-docs.sh
+./serve-docs.sh
+```
+
+PowerShell equivalents are available as `build-docs.ps1`, `check-docs.ps1`, and `serve-docs.ps1`.
+
 ## Release and CI
 
 - [`ci.yml`](https://github.com/wieslawsoltes/PrintingTools/blob/main/.github/workflows/ci.yml) runs cross-platform restore/build/test, executes the Windows/macOS/Linux harnesses, and validates that all NuGet packages can be packed.
+- [`docs.yml`](https://github.com/wieslawsoltes/PrintingTools/blob/main/.github/workflows/docs.yml) builds the Lunet site and publishes it to GitHub Pages on pushes to the primary branch.
 - [`release.yml`](https://github.com/wieslawsoltes/PrintingTools/blob/main/.github/workflows/release.yml) runs on tags like `v0.2.0`, packs all six publishable libraries, verifies the macOS native bridge is present in the package, publishes to NuGet, and creates a GitHub release.
 - Configure `NUGET_API_KEY` in repository secrets before using the release workflow for publishing.
 
