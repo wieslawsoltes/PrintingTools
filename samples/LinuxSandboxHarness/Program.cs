@@ -44,6 +44,7 @@ internal static class Program
 
         var metricsPath = metricsOverride is null ? null : metricsOverride.Split('=', 2)[1];
         var stressIterations = ParseStressIterations(stressOverride);
+        var headlessMode = HarnessAvaloniaBootstrap.IsHeadless;
 
         var managedPdf = Environment.GetEnvironmentVariable("PRINTINGTOOLS_SANDBOX_PDF");
         if (!string.IsNullOrWhiteSpace(outputOverride))
@@ -63,6 +64,15 @@ internal static class Program
         Console.WriteLine($"XDG_RUNTIME_DIR={Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR") ?? "<unset>"}");
         Console.WriteLine($"Metrics destination={metricsPath ?? "<none>"}");
         Console.WriteLine($"Stress iterations={stressIterations}");
+        Console.WriteLine($"Headless validation mode={headlessMode}");
+        if (requestDialog)
+        {
+            Console.WriteLine("Native dialog requests are ignored in headless validation mode.");
+        }
+        if (shouldPrint && headlessMode)
+        {
+            Console.WriteLine("Managed PDF export is skipped in headless validation mode.");
+        }
         Console.WriteLine();
 
         HarnessAvaloniaBootstrap.EnsureInitialized();
@@ -171,7 +181,7 @@ internal static class Program
         var metrics = new HarnessMetrics
         {
             Platform = "Linux",
-            Scenario = "PrintingTools Linux Sandbox Harness",
+            Scenario = HarnessAvaloniaBootstrap.IsHeadless ? "PrintingTools Linux Headless Harness" : "PrintingTools Linux Sandbox Harness",
             StressIterations = stressIterations
         };
 

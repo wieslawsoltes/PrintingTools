@@ -42,6 +42,7 @@ internal static class Program
 
         var metricsPath = metricsOverride is null ? null : metricsOverride.Split('=', 2)[1];
         var stressIterations = ParseStressIterations(stressOverride);
+        var headlessMode = HarnessAvaloniaBootstrap.IsHeadless;
 
         var pdfPath = Environment.GetEnvironmentVariable("PRINTINGTOOLS_WINDOWS_PDF");
         if (!string.IsNullOrWhiteSpace(outputOverride))
@@ -58,6 +59,15 @@ internal static class Program
         Console.WriteLine($"PRINTINGTOOLS_WINDOWS_PDF={pdfPath}");
         Console.WriteLine($"Metrics destination={metricsPath ?? "<none>"}");
         Console.WriteLine($"Stress iterations={stressIterations}");
+        Console.WriteLine($"Headless validation mode={headlessMode}");
+        if (requestDialog)
+        {
+            Console.WriteLine("Native dialog requests are ignored in headless validation mode.");
+        }
+        if (headlessMode)
+        {
+            Console.WriteLine("Managed PDF export is skipped in headless validation mode.");
+        }
         Console.WriteLine();
 
         HarnessAvaloniaBootstrap.EnsureInitialized();
@@ -150,7 +160,7 @@ internal static class Program
         var metrics = new HarnessMetrics
         {
             Platform = "Windows",
-            Scenario = "PrintingTools Windows Harness",
+            Scenario = HarnessAvaloniaBootstrap.IsHeadless ? "PrintingTools Windows Headless Harness" : "PrintingTools Windows Harness",
             StressIterations = stressIterations
         };
 

@@ -38,8 +38,9 @@ internal static class Program
         LogSandboxContext();
 
         var arguments = args ?? Array.Empty<string>();
-        var headless = arguments.Contains("--headless", StringComparer.OrdinalIgnoreCase) ||
+        var requestedHeadless = arguments.Contains("--headless", StringComparer.OrdinalIgnoreCase) ||
             string.Equals(Environment.GetEnvironmentVariable("PRINTINGTOOLS_MAC_HEADLESS"), "1", StringComparison.OrdinalIgnoreCase);
+        var headless = requestedHeadless || HarnessAvaloniaBootstrap.IsHeadless;
         var outputOverride = arguments.FirstOrDefault(a => a.StartsWith("--output=", StringComparison.OrdinalIgnoreCase));
         var metricsOverride = arguments.FirstOrDefault(a => a.StartsWith("--metrics=", StringComparison.OrdinalIgnoreCase));
         var stressOverride = arguments.FirstOrDefault(a => a.StartsWith("--stress=", StringComparison.OrdinalIgnoreCase));
@@ -62,6 +63,10 @@ internal static class Program
         Console.WriteLine($"Headless mode={headless}");
         Console.WriteLine($"Metrics destination={metricsPath ?? "<none>"}");
         Console.WriteLine($"Stress iterations={stressIterations}");
+        if (!requestedHeadless && HarnessAvaloniaBootstrap.IsHeadless)
+        {
+            Console.WriteLine("Native macOS print UI is unavailable in this harness configuration; running headless validation mode.");
+        }
         Console.WriteLine();
 
         HarnessAvaloniaBootstrap.EnsureInitialized();
@@ -195,11 +200,6 @@ internal static class Program
         metrics.PageCount = pageCount;
         metrics.MaxPreviewMilliseconds = previewTimings.Count > 0 ? Math.Max(previewTimings[0], previewTimings.Max()) : 0;
         metrics.AveragePreviewMilliseconds = previewTimings.Count > 0 ? previewTimings.Average() : 0;
-
-        if (!headless)
-        {
-            Console.WriteLine("UI mode requested – native print dialogs may appear.");
-        }
 
         if (HarnessAvaloniaBootstrap.IsHeadless)
         {
