@@ -239,20 +239,17 @@ internal static class Program
         metrics.SessionCreationMilliseconds = sessionWatch.Elapsed.TotalMilliseconds;
 
         var previewTimings = new List<double>(Math.Max(stressIterations, 1));
-        PrintPreviewModel? lastPreview = null;
+        var pageCount = 0;
         for (var i = 0; i < Math.Max(1, stressIterations); i++)
         {
             var previewWatch = Stopwatch.StartNew();
-            lastPreview = await HarnessAvaloniaBootstrap.InvokeAsync(() => manager.CreatePreviewAsync(session, token), token).ConfigureAwait(false);
+            using var preview = await HarnessAvaloniaBootstrap.InvokeAsync(() => manager.CreatePreviewAsync(session, token), token).ConfigureAwait(false);
             previewWatch.Stop();
             previewTimings.Add(previewWatch.Elapsed.TotalMilliseconds);
+            pageCount = preview.Pages.Count;
         }
 
-        if (lastPreview is not null)
-        {
-            metrics.PageCount = lastPreview.Pages.Count;
-        }
-
+        metrics.PageCount = pageCount;
         metrics.MaxPreviewMilliseconds = previewTimings.Count > 0 ? Math.Max(previewTimings[0], previewTimings.Max()) : 0;
         metrics.AveragePreviewMilliseconds = previewTimings.Count > 0 ? previewTimings.Average() : 0;
 
