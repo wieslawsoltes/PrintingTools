@@ -16,4 +16,12 @@
     <ProjectReference Include="..\..\src\PrintingTools.Windows\PrintingTools.Windows.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Headless" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\HarnessAvaloniaBootstrap.cs" Link="Shared\HarnessAvaloniaBootstrap.cs" />
+  </ItemGroup>
+
 </Project>

@@ -21,9 +21,10 @@ public class HarnessMetricsThresholdTests
             return;
         }
 
-        if (!File.Exists(metricsPath))
+        var resolvedMetricsPath = ResolveMetricsPath(metricsPath);
+        if (!File.Exists(resolvedMetricsPath))
         {
-            throw new XunitException($"Harness metrics file not found: {metricsPath}");
+            throw new XunitException($"Harness metrics file not found: {resolvedMetricsPath}");
         }
 
         var thresholds = LoadThresholds();
@@ -32,10 +33,10 @@ public class HarnessMetricsThresholdTests
             throw new XunitException($"No threshold configuration found for platform '{platform}'.");
         }
 
-        var metrics = JsonSerializer.Deserialize<HarnessMetrics>(File.ReadAllText(metricsPath), new JsonSerializerOptions
+        var metrics = JsonSerializer.Deserialize<HarnessMetrics>(File.ReadAllText(resolvedMetricsPath), new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
-        }) ?? throw new InvalidOperationException($"Failed to deserialize harness metrics at '{metricsPath}'.");
+        }) ?? throw new InvalidOperationException($"Failed to deserialize harness metrics at '{resolvedMetricsPath}'.");
 
         Assert.True(metrics.PageCount >= threshold.MinPageCount, $"Expected at least {threshold.MinPageCount} pages, got {metrics.PageCount}.");
         Assert.InRange(metrics.SessionCreationMilliseconds, 0, threshold.MaxSessionMilliseconds);
@@ -62,6 +63,33 @@ public class HarnessMetricsThresholdTests
         });
 
         return manifest ?? new Dictionary<string, HarnessThreshold>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static string ResolveMetricsPath(string metricsPath)
+    {
+        if (Path.IsPathRooted(metricsPath))
+        {
+            return metricsPath;
+        }
+
+        var candidate = Path.GetFullPath(metricsPath, AppContext.BaseDirectory);
+        if (File.Exists(candidate))
+        {
+            return candidate;
+        }
+
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "PrintingTool.sln")))
+            {
+                return Path.GetFullPath(metricsPath, directory.FullName);
+            }
+
+            directory = directory.Parent;
+        }
+
+        return candidate;
     }
 
     private sealed class HarnessMetrics

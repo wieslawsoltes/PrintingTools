@@ -17,7 +17,12 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Headless" />
     <PackageReference Include="Avalonia.Skia" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\HarnessAvaloniaBootstrap.cs" Link="Shared\HarnessAvaloniaBootstrap.cs" />
   </ItemGroup>
 
   <ItemGroup>

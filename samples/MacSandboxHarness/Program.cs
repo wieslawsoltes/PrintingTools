@@ -18,6 +18,7 @@ using Avalonia.VisualTree;
 using PrintingTools.Core;
 using PrintingTools.Core.Rendering;
 using PrintingTools.MacOS;
+using PrintingTools.SampleHarnesses;
 
 namespace PrintingTools.MacSandboxHarness;
 
@@ -62,6 +63,8 @@ internal static class Program
         Console.WriteLine($"Metrics destination={metricsPath ?? "<none>"}");
         Console.WriteLine($"Stress iterations={stressIterations}");
         Console.WriteLine();
+
+        HarnessAvaloniaBootstrap.EnsureInitialized();
 
         var options = new PrintingToolsOptions
         {
@@ -131,16 +134,21 @@ internal static class Program
             Directory.CreateDirectory(directory);
         }
 
-        var visual = CreateHarnessVisual();
-        var accessibility = AnalyzeAccessibility(visual);
-        metrics.TotalControlCount = accessibility.TotalControls;
-        metrics.AccessibilityIssueCount = accessibility.MissingNames;
-
-        var document = PrintDocument.FromVisual(visual, new PrintPageSettings
+        var documentContext = HarnessAvaloniaBootstrap.Invoke(() =>
         {
-            TargetSize = new Size(612, 792),
-            Margins = new Thickness(48)
+            var visual = CreateHarnessVisual();
+            var accessibility = AnalyzeAccessibility(visual);
+            var document = PrintDocument.FromVisual(visual, new PrintPageSettings
+            {
+                TargetSize = new Size(612, 792),
+                Margins = new Thickness(48)
+            });
+
+            return new HarnessDocumentContext(document, accessibility.TotalControls, accessibility.MissingNames);
         });
+
+        metrics.TotalControlCount = documentContext.TotalControlCount;
+        metrics.AccessibilityIssueCount = documentContext.AccessibilityIssueCount;
 
         var ticket = PrintTicketModel.CreateDefault();
         ticket.Extensions["macos.harness"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
@@ -148,8 +156,8 @@ internal static class Program
         var options = new PrintOptions
         {
             ShowPrintDialog = !headless,
-            UseVectorRenderer = true,
-            PdfOutputPath = pdfPath,
+            UseVectorRenderer = !HarnessAvaloniaBootstrap.IsHeadless,
+            PdfOutputPath = HarnessAvaloniaBootstrap.IsHeadless ? null : pdfPath,
             JobName = "PrintingTools macOS Harness",
             PaperSize = new Size(8.5, 11),
             Margins = new Thickness(0.5),
@@ -161,7 +169,7 @@ internal static class Program
             options.PrinterName = printers[0].Name;
         }
 
-        var request = new PrintRequest(document)
+        var request = new PrintRequest(documentContext.Document)
         {
             Description = "PrintingTools macOS Harness",
             Options = options,
@@ -178,7 +186,7 @@ internal static class Program
         for (var i = 0; i < Math.Max(1, stressIterations); i++)
         {
             var previewWatch = Stopwatch.StartNew();
-            lastPreview = await manager.CreatePreviewAsync(session, token).ConfigureAwait(false);
+            lastPreview = await HarnessAvaloniaBootstrap.InvokeAsync(() => manager.CreatePreviewAsync(session, token), token).ConfigureAwait(false);
             previewWatch.Stop();
             previewTimings.Add(previewWatch.Elapsed.TotalMilliseconds);
         }
@@ -196,10 +204,18 @@ internal static class Program
             Console.WriteLine("UI mode requested – native print dialogs may appear.");
         }
 
-        var printWatch = Stopwatch.StartNew();
-        await manager.PrintAsync(session, token).ConfigureAwait(false);
-        printWatch.Stop();
-        metrics.PrintMilliseconds = printWatch.Elapsed.TotalMilliseconds;
+        if (HarnessAvaloniaBootstrap.IsHeadless)
+        {
+            Console.WriteLine("Headless harness mode detected; skipping macOS PDF export/print submission.");
+            metrics.PrintMilliseconds = 0;
+        }
+        else
+        {
+            var printWatch = Stopwatch.StartNew();
+            await HarnessAvaloniaBootstrap.InvokeAsync(() => manager.PrintAsync(session, token), token).ConfigureAwait(false);
+            printWatch.Stop();
+            metrics.PrintMilliseconds = printWatch.Elapsed.TotalMilliseconds;
+        }
 
         metrics.PeakMemoryBytes = GC.GetTotalMemory(forceFullCollection: true);
         metrics.TotalMilliseconds = metrics.SessionCreationMilliseconds + metrics.MaxPreviewMilliseconds + metrics.PrintMilliseconds;
@@ -408,4 +424,6 @@ internal static class Program
 
         public int MissingNames { get; set; }
     }
+
+    private sealed record HarnessDocumentContext(PrintDocument Document, int TotalControlCount, int AccessibilityIssueCount);
 }

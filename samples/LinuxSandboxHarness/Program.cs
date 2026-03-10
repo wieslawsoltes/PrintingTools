@@ -19,6 +19,7 @@ using Avalonia.VisualTree;
 using PrintingTools.Core;
 using PrintingTools.Core.Rendering;
 using PrintingTools.Linux;
+using PrintingTools.SampleHarnesses;
 
 namespace LinuxSandboxHarness;
 
@@ -63,6 +64,8 @@ internal static class Program
         Console.WriteLine($"Metrics destination={metricsPath ?? "<none>"}");
         Console.WriteLine($"Stress iterations={stressIterations}");
         Console.WriteLine();
+
+        HarnessAvaloniaBootstrap.EnsureInitialized();
 
         var options = new PrintingToolsOptions
         {
@@ -194,16 +197,21 @@ internal static class Program
             }
         }
 
-        var visual = CreateHarnessVisual();
-        var accessibility = AnalyzeAccessibility(visual);
-        metrics.TotalControlCount = accessibility.TotalControls;
-        metrics.AccessibilityIssueCount = accessibility.MissingNames;
-
-        var document = PrintDocument.FromVisual(visual, new PrintPageSettings
+        var documentContext = HarnessAvaloniaBootstrap.Invoke(() =>
         {
-            TargetSize = new Size(612, 792),
-            Margins = new Thickness(48)
+            var visual = CreateHarnessVisual();
+            var accessibility = AnalyzeAccessibility(visual);
+            var document = PrintDocument.FromVisual(visual, new PrintPageSettings
+            {
+                TargetSize = new Size(612, 792),
+                Margins = new Thickness(48)
+            });
+
+            return new HarnessDocumentContext(document, accessibility.TotalControls, accessibility.MissingNames);
         });
+
+        metrics.TotalControlCount = documentContext.TotalControlCount;
+        metrics.AccessibilityIssueCount = documentContext.AccessibilityIssueCount;
 
         var ticket = PrintTicketModel.CreateDefault();
         ticket.Extensions["linux.harness"] = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
@@ -211,14 +219,14 @@ internal static class Program
         var options = new PrintOptions
         {
             ShowPrintDialog = showDialog,
-            UseVectorRenderer = true,
-            PdfOutputPath = shouldPrint ? pdfPath : null,
+            UseVectorRenderer = !HarnessAvaloniaBootstrap.IsHeadless,
+            PdfOutputPath = shouldPrint && !HarnessAvaloniaBootstrap.IsHeadless ? pdfPath : null,
             JobName = "PrintingTools Linux Sandbox Harness",
             PaperSize = new Size(8.5, 11),
             Margins = new Thickness(0.5)
         };
 
-        var request = new PrintRequest(document)
+        var request = new PrintRequest(documentContext.Document)
         {
             Description = "PrintingTools Linux Sandbox Harness",
             Options = options,
@@ -235,7 +243,7 @@ internal static class Program
         for (var i = 0; i < Math.Max(1, stressIterations); i++)
         {
             var previewWatch = Stopwatch.StartNew();
-            lastPreview = await manager.CreatePreviewAsync(session, token).ConfigureAwait(false);
+            lastPreview = await HarnessAvaloniaBootstrap.InvokeAsync(() => manager.CreatePreviewAsync(session, token), token).ConfigureAwait(false);
             previewWatch.Stop();
             previewTimings.Add(previewWatch.Elapsed.TotalMilliseconds);
         }
@@ -251,10 +259,17 @@ internal static class Program
         double printDuration = 0;
         if (shouldPrint)
         {
-            var printWatch = Stopwatch.StartNew();
-            await manager.PrintAsync(session, token).ConfigureAwait(false);
-            printWatch.Stop();
-            printDuration = printWatch.Elapsed.TotalMilliseconds;
+            if (HarnessAvaloniaBootstrap.IsHeadless)
+            {
+                Console.WriteLine("Headless harness mode detected; skipping Linux PDF export/print submission.");
+            }
+            else
+            {
+                var printWatch = Stopwatch.StartNew();
+                await HarnessAvaloniaBootstrap.InvokeAsync(() => manager.PrintAsync(session, token), token).ConfigureAwait(false);
+                printWatch.Stop();
+                printDuration = printWatch.Elapsed.TotalMilliseconds;
+            }
         }
 
         metrics.PrintMilliseconds = printDuration;
@@ -509,4 +524,6 @@ internal static class Program
 
         public int MissingNames { get; set; }
     }
+
+    private sealed record HarnessDocumentContext(PrintDocument Document, int TotalControlCount, int AccessibilityIssueCount);
 }

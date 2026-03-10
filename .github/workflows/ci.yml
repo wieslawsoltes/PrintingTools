@@ -143,7 +143,9 @@ jobs:
         run: dotnet restore PrintingTool.sln
 
       - name: Run Linux sandbox harness
+        shell: bash
         run: |
+          set -o pipefail
           mkdir -p artifacts/linux
           dotnet run -c Release --project samples/LinuxSandboxHarness/LinuxSandboxHarness.csproj -- --print --output=artifacts/linux/printingtools-linux.pdf --metrics="$HARNESS_METRICS_PATH" --stress=3 | tee artifacts/linux/linux-harness.log
 
@@ -179,7 +181,9 @@ jobs:
         run: dotnet restore PrintingTool.sln
 
       - name: Run macOS sandbox harness
+        shell: bash
         run: |
+          set -o pipefail
           mkdir -p artifacts/macos
           dotnet run -c Release --project samples/MacSandboxHarness/MacSandboxHarness.csproj -- --headless --output=artifacts/macos/printingtools-macos.pdf --metrics="$HARNESS_METRICS_PATH" --stress=3 | tee artifacts/macos/macos-harness.log
 
@@ -218,6 +222,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path artifacts/windows | Out-Null
           dotnet run -c Release --project samples/WindowsPrintHarness/WindowsPrintHarness.csproj -- --output=artifacts/windows/printingtools-windows.pdf --metrics=$env:HARNESS_METRICS_PATH --stress=3 | Tee-Object -FilePath artifacts/windows/windows-harness.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Validate harness metrics
         shell: pwsh

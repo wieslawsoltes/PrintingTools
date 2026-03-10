@@ -194,7 +194,7 @@ internal static partial class Win32NativeMethods
         public ushort Milliseconds;
     }
 
-    [LibraryImport(WinSpool, SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    [LibraryImport(WinSpool, EntryPoint = "EnumPrintersW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool EnumPrinters(
         PrinterEnumFlags Flags,
@@ -205,7 +205,7 @@ internal static partial class Win32NativeMethods
         out uint pcbNeeded,
         out uint pcReturned);
 
-    [LibraryImport(WinSpool, SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    [LibraryImport(WinSpool, EntryPoint = "OpenPrinterW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool OpenPrinter(string pPrinterName, out IntPtr phPrinter, IntPtr pDefault);
 
