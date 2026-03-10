@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/architecture-and-service-model</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/pagination-and-layout-model</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/print-session-lifecycle</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -21,11 +13,19 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/pagination-and-layout-model</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
     <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/installation</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/print-session-lifecycle</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/quickstart-avalonia</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -37,7 +37,7 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/quickstart-avalonia</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -77,19 +77,15 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/namespace-printingtools-platforms</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
     <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/namespace-printingtools-ui</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
     <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/package-selection-and-assemblies</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/overview</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -117,7 +113,11 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/migration-from-wpf</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/architecture-and-service-model</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/page-setup-and-preview-ui</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -133,11 +133,11 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/namespace-printingtools-platforms</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/migration-from-wpf</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/page-setup-and-preview-ui</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/overview</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
 </urlset>
