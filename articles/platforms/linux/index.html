@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html data-lunet-theme-mode="system" data-lunet-theme-storage-key="lunet-theme" data-lunet-css-prefix="lunet" lang="en" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="lunet 1.0.10.0">
+    <script>(function(){const root=document.documentElement;const key=root.getAttribute("data-lunet-theme-storage-key")||"lunet-theme";const fallback=root.getAttribute("data-lunet-theme-mode")||"system";let stored=null;try{stored=localStorage.getItem(key);}catch(_){stored=null;}const mode=(stored==="light"||stored==="dark"||stored==="system")?stored:fallback;const prefersDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;const resolved=mode==="system"?(prefersDark?"dark":"light"):mode;root.setAttribute("data-lunet-theme-mode",mode);root.setAttribute("data-bs-theme",resolved);}());</script>
+    <link rel='icon' href='/PrintingTools/favicon.ico' sizes='32x32'>
+    <title>Linux | PrintingTools</title>
+    <link rel="stylesheet" href="/PrintingTools/css/lite.css">
+    <script src="/PrintingTools/js/lite-defer.js" defer></script>
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@wieslawsoltes">
+<meta name="twitter:title" content="Linux | PrintingTools">
+<meta name="twitter:description" content="Linux PrintingTools.Linux targets CUPS-backed printing environments and uses GTK or managed dialog fallbacks depending on what is available at runtime. Supported environment CUPS 2.3 or newer Ubuntu, Fedora, Arch, and other distributions with lp and lpoptions GTK-backed desktops or headless/service environments Feature snapshot Capability Status Printer discovery via CUPS utilities Supported Capability discovery via lpoptions Supported GTK dialog integration Supported when available Managed dialog fallback...">
+<meta name="twitter:image" content="https://wieslawsoltes.github.io/PrintingTools/images/logo.svg">
+<meta name="twitter:image:alt" content="Linux | PrintingTools">
+<meta property="og:title" content="Linux | PrintingTools">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://wieslawsoltes.github.io/PrintingTools">
+<meta property="og:description" content="Linux PrintingTools.Linux targets CUPS-backed printing environments and uses GTK or managed dialog fallbacks depending on what is available at runtime. Supported environment CUPS 2.3 or newer Ubuntu, Fedora, Arch, and other distributions with lp and lpoptions GTK-backed desktops or headless/service environments Feature snapshot Capability Status Printer discovery via CUPS utilities Supported Capability discovery via lpoptions Supported GTK dialog integration Supported when available Managed dialog fallback...">
+<meta property="og:image" content="https://wieslawsoltes.github.io/PrintingTools/images/logo.svg">
+<meta property="og:image:alt" content="Linux | PrintingTools">
+  </head>
+  <body>
+
+    <div id="lunet" class="container">
+      <nav class="navbar navbar-expand-md sticky-top">
+        <a class="navbar-brand" href="/PrintingTools/">
+          <img class="lunet-logo" src="/PrintingTools/images/logo.svg" alt="PrintingTools" width="96" height="96">
+          <span class="visually-hidden">Home</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbarSupportedContent" class="collapse navbar-collapse justify-content-between">
+<ol id='nav-id-home-0' class='navbar-nav nav-level0 show '>
+  <li id='nav-item-home-1' class='nav-item '>
+    <span class='nav-item-row'><a href='/PrintingTools/' class='nav-link  '><i class='bi bi-house-door' aria-hidden='true'></i> Home</a></span>  </li>
+  <li id='nav-item-home-2' class='nav-item  active'>
+    <span class='nav-item-row'><a href='/PrintingTools/articles/' class='nav-link  '><i class='bi bi-book' aria-hidden='true'></i> Docs</a></span>  </li>
+  <li id='nav-item-home-3' class='nav-item '>
+    <span class='nav-item-row'><a href='/PrintingTools/api/' class='nav-link  '><i class='bi bi-braces' aria-hidden='true'></i> API</a></span>  </li>
+</ol>
+          <ol class="navbar-nav flex-grow-1" style="padding-right: 0.5rem;">
+            <li class="nav-item w-100">
+                <div class="lunet-search dropdown w-100">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input id="search-input" type="search" class="form-control" placeholder="Search... (Alt+s)" aria-label="Search" aria-controls="search-results" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-search-empty-message="Enter words to search..." data-search-no-results-message="No results found.">
+                    <ul id="search-results" class="dropdown-menu w-100 p-0" style="max-height: 50vh;" role="listbox" aria-labelledby="search-input"></ul>
+                  </div>
+                </div>
+            </li>
+          </ol>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0 navbar-right">
+            <div class="dropdown">
+              <button
+                id="theme-mode-toggle"
+                class="btn btn-outline-secondary btn-sm lunet-theme-toggle dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-label="Theme">
+                <i class="bi bi-circle-half" data-lunet-theme-toggle-icon aria-hidden="true"></i>
+                <span
+                  data-lunet-theme-toggle-label
+                  data-theme-system-label="System"
+                  data-theme-light-label="Light"
+                  data-theme-dark-label="Dark">Theme</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="theme-mode-toggle">
+                <li><button class="dropdown-item" type="button" data-lunet-theme-choice="system"><i class="bi bi-circle-half me-2"></i>System</button></li>
+                <li><button class="dropdown-item" type="button" data-lunet-theme-choice="light"><i class="bi bi-sun-fill me-2"></i>Light</button></li>
+                <li><button class="dropdown-item" type="button" data-lunet-theme-choice="dark"><i class="bi bi-moon-stars-fill me-2"></i>Dark</button></li>
+              </ul>
+            </div>
+<ol id='nav-id-home2-0' class='navbar-nav nav-level0 show flex-shrink-0'>
+  <li id='nav-item-home2-1' class='nav-item '>
+    <span class='nav-item-row'><a href='https://github.com/wieslawsoltes/PrintingTools' class='nav-link  btn btn-info'><i class="bi bi-github"></i> GitHub</a></span>  </li>
+</ol>
+          </div>
+        </div>
+      </nav>
+      <div class="lunet lunet-articles">
+        <section data-prismjs-copy="" data-prismjs-copy-success="" data-prismjs-copy-timeout="1200" data-copy-tooltip="Copy to Clipboard." data-copy-tooltip-success="Copied!" data-copy-tooltip-error="Failed to copy!">
+
+<div class="container-xxl">
+  <div class="row">
+      <!-- Left sidebar - responsive offcanvas (offcanvas on mobile, visible sidebar on md+) -->
+      <nav id="docs-sidebar-menu" class="col-md-3 col-lg-3 col-xl-3 col-xxl-2 offcanvas-md offcanvas-start sticky-md-top menu-sidebar align-self-start order-1 order-md-0" tabindex="-1" aria-labelledby="docs-sidebar-menu-label" aria-expanded="true">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="docs-sidebar-menu-label">Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#docs-sidebar-menu" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ol id='menu-id-platforms-0' class='menu menu-level0 show '>
+            <li id='menu-item-platforms-1' class='menu-item '>
+              <span class='menu-item-row'><a href='/PrintingTools/articles/platforms/' class='menu-link  '>Platforms</a></span>  </li>
+            <li id='menu-item-platforms-2' class='menu-item '>
+              <span class='menu-item-row'><a href='/PrintingTools/articles/platforms/windows/' class='menu-link  '>Windows</a></span>  </li>
+            <li id='menu-item-platforms-3' class='menu-item '>
+              <span class='menu-item-row'><a href='/PrintingTools/articles/platforms/macos/' class='menu-link  '>macOS</a></span>  </li>
+            <li id='menu-item-platforms-4' class='menu-item  active'>
+              <span class='menu-item-row'><a href='/PrintingTools/articles/platforms/linux/' class='menu-link  '>Linux</a></span>  </li>
+            <li id='menu-item-platforms-5' class='menu-item '>
+              <span class='menu-item-row'><a href='/PrintingTools/articles/platforms/support-matrix/' class='menu-link  '>Support Matrix</a></span>  </li>
+          </ol>
+
+        </div>
+      </nav>
+      <!-- Right sidebar (TOC) - collapsible on mobile, visible sidebar on xxl+ -->
+      <aside id="docs-sidebar-toc" class="col-12 col-xxl-2 sticky-xxl-top menu-sidebar align-self-start order-0 order-xxl-2 collapse d-xxl-block" aria-expanded="true">
+        <h3 class="toc-title">On this page</h3>
+        <nav class="js-toc"></nav>
+      </aside>
+      <!-- Main content column -->
+      <div class="col-12 col-md-9 col-lg-9 col-xl-9 col-xxl-8 order-2 order-md-1 js-toc-content">
+        <ol class='breadcrumb'>
+          <li class='breadcrumb-item '>
+            <a href='/PrintingTools/' class='breadcrumb-link  '><i class='bi bi-house-door' aria-hidden='true'></i> Home</a>  </li>
+          <li class='breadcrumb-item '>
+            <a href='/PrintingTools/articles/' class='breadcrumb-link  '><i class='bi bi-book' aria-hidden='true'></i> Docs</a>  </li>
+          <li class='breadcrumb-item '>
+            <a href='/PrintingTools/articles/platforms/' class='breadcrumb-link  '>Platforms</a>  </li>
+          <li class='breadcrumb-item  active'>
+            Linux  </li>
+        </ol>
+
+        <p id="lunet-results"></p>
+        <!-- Toggle buttons visible only on small screens -->
+        <div class="d-md-none mb-3">
+          <button
+            class="btn btn-outline-secondary btn-sm me-2"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#docs-sidebar-menu"
+            aria-controls="docs-sidebar-menu"
+            aria-label="Toggle docs menu">
+            Menu
+          </button>
+          <button
+            class="btn btn-outline-secondary btn-sm d-xxl-none"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#docs-sidebar-toc"
+            aria-controls="docs-sidebar-toc"
+            aria-expanded="false"
+            aria-label="Toggle Table Of Contents">
+            On this page
+          </button>
+        </div>
+<!-- lunet:summarize -->
+<h1 id="linux">Linux</h1>
+<p><code>PrintingTools.Linux</code> targets CUPS-backed printing environments and uses GTK or managed dialog fallbacks depending on what is available at runtime.</p>
+<h2 id="supported-environment">Supported environment</h2>
+<ul>
+<li>CUPS 2.3 or newer</li>
+<li>Ubuntu, Fedora, Arch, and other distributions with <code>lp</code> and <code>lpoptions</code></li>
+<li>GTK-backed desktops or headless/service environments</li>
+</ul>
+<h2 id="feature-snapshot">Feature snapshot</h2>
+<table class="table">
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Printer discovery via CUPS utilities</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Capability discovery via <code>lpoptions</code></td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>GTK dialog integration</td>
+<td>Supported when available</td>
+</tr>
+<tr>
+<td>Managed dialog fallback</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Portal-aware execution</td>
+<td>Supported via environment variables</td>
+</tr>
+<tr>
+<td>Managed PDF export plus <code>lp</code> submission</td>
+<td>Supported</td>
+</tr>
+</tbody>
+</table>
+<h2 id="runtime-notes">Runtime notes</h2>
+<ul>
+<li>Export <code>GTK_USE_PORTAL=1</code> and <code>GIO_USE_PORTALS=1</code> for Flatpak and Snap-style environments.</li>
+<li>When no display server is available, the adapter stays functional for non-interactive export workflows.</li>
+<li>CUPS stderr is surfaced through diagnostics and should be preserved in logs.</li>
+</ul>
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="/PrintingTools/articles/guides/samples-and-harnesses">Samples and Harnesses</a></li>
+<li><a href="/PrintingTools/articles/platforms/support-matrix">Support Matrix</a></li>
+</ul>
+
+      </div>
+  </div>
+</div>
+
+        </section>
+        <footer>
+          <hr>
+          <p>Copyright &copy; 2026, Wieslaw Soltes aka <a href="https://github.com/wieslawsoltes">wieslawsoltes</a> - Content licensed under the Creative Commons <a href="http://creativecommons.org/licenses/by/2.5/">CC BY 2.5</a> | Site generated by <a href="https://github.com/lunet-io/lunet">lunet</a> hosted on <a href="https://pages.github.com/">GitHub Pages</a></p>
+        </footer>
+      </div>
+    </div>
+
+  </body>
+</html>
