@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/quickstart-headless</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/advanced/harness-baselines-and-golden-metrics</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
     <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/advanced</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/previews-rendering-and-diagnostics</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/overview</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -17,7 +29,11 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/api-coverage-index</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -25,31 +41,7 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/print-session-lifecycle</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/package-selection-and-assemblies</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/api-coverage-index</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms/linux</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms/macos</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms/windows</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/installation</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -61,15 +53,35 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/lunet-docs-pipeline</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/namespace-printingtools-ui</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/migration-from-wpf</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/print-session-lifecycle</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/package-selection-and-assemblies</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms/linux</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
     <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms/support-matrix</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/quickstart-avalonia</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/migration-from-wpf</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -81,39 +93,19 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/samples-and-harnesses</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
     <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/troubleshooting</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/architecture-and-service-model</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/guides/samples-and-harnesses</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms/windows</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/quickstart-avalonia</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/advanced/harness-baselines-and-golden-metrics</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/installation</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/platforms/macos</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -121,7 +113,11 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/quickstart-headless</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/architecture-and-service-model</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/getting-started/overview</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
@@ -129,15 +125,19 @@
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/namespace-printingtools-ui</loc>
-    <lastmod>2026-03-10</lastmod>
-  </url>
-  <url>
-    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools</loc>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
   <url>
     <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/advanced/adapter-extensibility</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/concepts/previews-rendering-and-diagnostics</loc>
+    <lastmod>2026-03-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wieslawsoltes.github.io/PrintingTools/PrintingTools/articles/reference/lunet-docs-pipeline</loc>
     <lastmod>2026-03-10</lastmod>
   </url>
 </urlset>
