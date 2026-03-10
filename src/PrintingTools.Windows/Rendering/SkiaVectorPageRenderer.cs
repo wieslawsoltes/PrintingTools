@@ -37,7 +37,7 @@ internal sealed class SkiaVectorPageRenderer : IVectorPageRenderer
         using var stream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read);
         using var document = SKDocument.CreatePdf(stream) ?? throw new InvalidOperationException("Unable to create PDF document via Skia.");
 
-        RenderDocument(document, pages);
+        AvaloniaDispatcherHelper.Invoke(() => RenderDocument(document, pages));
         document.Close();
     }
 
@@ -51,7 +51,7 @@ internal sealed class SkiaVectorPageRenderer : IVectorPageRenderer
         using var wStream = new SKDynamicMemoryWStream();
         using (var document = SKDocument.CreatePdf(wStream) ?? throw new InvalidOperationException("Unable to create PDF document via Skia."))
         {
-            RenderDocument(document, pages);
+            AvaloniaDispatcherHelper.Invoke(() => RenderDocument(document, pages));
             document.Close();
         }
 

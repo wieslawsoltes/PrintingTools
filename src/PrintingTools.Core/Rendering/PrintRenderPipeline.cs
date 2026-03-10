@@ -16,36 +16,42 @@ public static class PrintRenderPipeline
     {
         ArgumentNullException.ThrowIfNull(session);
 
-        var pages = session.Paginate(cancellationToken);
-        if (pages.Count == 0)
+        return AvaloniaDispatcherHelper.Invoke(() =>
         {
-            return pages;
-        }
+            var pages = session.Paginate(cancellationToken);
+            if (pages.Count == 0)
+            {
+                return pages;
+            }
 
-        var laidOut = PrintPaginationUtilities.ApplyAdvancedLayout(pages, session.Options);
-        var normalized = new List<PrintPage>(laidOut.Count);
-        foreach (var page in laidOut)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            normalized.Add(NormalizePage(page, targetDpi));
-        }
+            var laidOut = PrintPaginationUtilities.ApplyAdvancedLayout(pages, session.Options);
+            var normalized = new List<PrintPage>(laidOut.Count);
+            foreach (var page in laidOut)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                normalized.Add(NormalizePage(page, targetDpi));
+            }
 
-        return normalized;
+            return (IReadOnlyList<PrintPage>)normalized;
+        }, cancellationToken);
     }
 
     public static IReadOnlyList<RenderTargetBitmap> RenderBitmaps(IReadOnlyList<PrintPage> pages, Vector targetDpi, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(pages);
 
-        var results = new List<RenderTargetBitmap>(pages.Count);
-        foreach (var page in pages)
+        return AvaloniaDispatcherHelper.Invoke(() =>
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var metrics = EnsureMetrics(page, targetDpi);
-            results.Add(PrintPageRenderer.RenderToBitmap(page, metrics));
-        }
+            var results = new List<RenderTargetBitmap>(pages.Count);
+            foreach (var page in pages)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var metrics = EnsureMetrics(page, targetDpi);
+                results.Add(PrintPageRenderer.RenderToBitmap(page, metrics));
+            }
 
-        return results;
+            return (IReadOnlyList<RenderTargetBitmap>)results;
+        }, cancellationToken);
     }
 
     public static byte[]? TryCreateVectorDocument(IReadOnlyList<PrintPage> pages, IVectorPageRenderer renderer)
@@ -58,7 +64,7 @@ public static class PrintRenderPipeline
             return null;
         }
 
-        var bytes = renderer.CreatePdfBytes(pages);
+        var bytes = AvaloniaDispatcherHelper.Invoke(() => renderer.CreatePdfBytes(pages));
         return bytes.Length == 0 ? null : bytes;
     }
 

@@ -57,13 +57,16 @@ public static class PrintPageRenderer
         ArgumentNullException.ThrowIfNull(page);
         ArgumentNullException.ThrowIfNull(metrics);
 
-        var bitmap = new RenderTargetBitmap(metrics.PagePixelSize, metrics.Dpi);
-        using (var drawingContext = bitmap.CreateDrawingContext(true))
+        return AvaloniaDispatcherHelper.Invoke(() =>
         {
-            RenderToDrawingContext(drawingContext, page, metrics);
-        }
+            var bitmap = new RenderTargetBitmap(metrics.PagePixelSize, metrics.Dpi);
+            using (var drawingContext = bitmap.CreateDrawingContext(true))
+            {
+                RenderToDrawingContext(drawingContext, page, metrics);
+            }
 
-        return bitmap;
+            return bitmap;
+        });
     }
 
     private static void RenderVisualTree(DrawingContext context, Visual visual)
