@@ -61,6 +61,7 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+site/.lunet/build/
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
