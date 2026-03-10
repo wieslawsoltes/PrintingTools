@@ -156,9 +156,10 @@ public sealed class PrintDocument
 
         var baseSettings = (settings ?? PrintPageSettings.Default).Clone();
         var effectiveSettings = PrintLayoutHints.CreateSettings(visual, baseSettings);
+        var pageBreakAfter = PrintLayoutHints.GetIsPageBreakAfter(visual);
         var list = new List<Func<IPrintPageEnumerator>>
         {
-            () => new VisualPrintPageEnumerator(visual, effectiveSettings, PrintLayoutHints.GetIsPageBreakAfter(visual))
+            () => new VisualPrintPageEnumerator(visual, effectiveSettings, pageBreakAfter)
         };
 
         return new PrintDocument(list);

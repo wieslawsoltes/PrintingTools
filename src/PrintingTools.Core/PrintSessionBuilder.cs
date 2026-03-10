@@ -22,8 +22,9 @@ public sealed class PrintSessionBuilder
 
         var baseSettings = (settings ?? PrintPageSettings.Default).Clone();
         var pageSettings = PrintLayoutHints.CreateSettings(visual, baseSettings);
+        var pageBreakAfter = PrintLayoutHints.GetIsPageBreakAfter(visual);
 
-        _pageSources.Add(() => new VisualPrintPageEnumerator(visual, pageSettings, PrintLayoutHints.GetIsPageBreakAfter(visual)));
+        _pageSources.Add(() => new VisualPrintPageEnumerator(visual, pageSettings, pageBreakAfter));
         return this;
     }
 
