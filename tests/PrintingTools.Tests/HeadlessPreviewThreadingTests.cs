@@ -7,6 +7,8 @@ using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Media;
 using PrintingTools.Core;
+using PrintingTools.Core.Rendering;
+using PrintingTools.Windows.Rendering;
 using Xunit;
 
 namespace PrintingTools.Tests;
@@ -52,6 +54,42 @@ public sealed class HeadlessPreviewThreadingTests
 
             Assert.NotEmpty(preview.Pages);
             Assert.NotEmpty(preview.Images);
+        }, CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task XpsExportCanRenderVectorPagesFromBackgroundThread()
+    {
+        using var headlessSession = HeadlessUnitTestSession.StartNew(typeof(HeadlessPreviewEntryPoint));
+
+        await headlessSession.Dispatch(async () =>
+        {
+            var visual = new PreviewTestVisual
+            {
+                Width = 612,
+                Height = 792
+            };
+
+            visual.Measure(new Size(visual.Width, visual.Height));
+            visual.Arrange(new Rect(0, 0, visual.Width, visual.Height));
+
+            var session = new PrintSession(
+                PrintDocument.FromVisual(visual, new PrintPageSettings
+                {
+                    TargetSize = new Size(612, 792),
+                    Margins = new Thickness(24)
+                }),
+                new PrintOptions
+                {
+                    UseVectorRenderer = true
+                });
+
+            var pages = PrintRenderPipeline.CollectPages(session, new Vector(300, 300));
+            var exporter = new SkiaXpsExporter();
+
+            var xpsBytes = await Task.Run(() => exporter.CreateXpsBytes(pages));
+
+            Assert.NotEmpty(xpsBytes);
         }, CancellationToken.None);
     }
 
