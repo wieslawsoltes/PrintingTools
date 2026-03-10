@@ -39,7 +39,7 @@ internal sealed class SkiaXpsExporter
         using var stream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read);
         using var document = SKDocument.CreateXps(stream) ?? throw new InvalidOperationException("Unable to create XPS document via Skia.");
 
-        RenderDocument(document, pages, bitmaps);
+        RenderDocumentOnRequiredThread(document, pages, bitmaps);
         document.Close();
     }
 
@@ -53,12 +53,23 @@ internal sealed class SkiaXpsExporter
         using var wStream = new SKDynamicMemoryWStream();
         using (var document = SKDocument.CreateXps(wStream) ?? throw new InvalidOperationException("Unable to create XPS document via Skia."))
         {
-            RenderDocument(document, pages, bitmaps);
+            RenderDocumentOnRequiredThread(document, pages, bitmaps);
             document.Close();
         }
 
         using var data = wStream.DetachAsData();
         return data?.ToArray() ?? Array.Empty<byte>();
+    }
+
+    private static void RenderDocumentOnRequiredThread(SKDocument document, IReadOnlyList<PrintPage> pages, IReadOnlyList<RenderTargetBitmap>? bitmaps)
+    {
+        if (bitmaps is null)
+        {
+            AvaloniaDispatcherHelper.Invoke(() => RenderDocument(document, pages, bitmaps));
+            return;
+        }
+
+        RenderDocument(document, pages, bitmaps);
     }
 
     private static void RenderDocument(SKDocument document, IReadOnlyList<PrintPage> pages, IReadOnlyList<RenderTargetBitmap>? bitmaps)
