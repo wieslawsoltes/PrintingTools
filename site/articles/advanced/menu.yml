@@ -1,0 +1,6 @@
+advanced:
+  - {path: readme.md, title: "Advanced"}
+  - {path: harness-baselines-and-golden-metrics.md, title: "Harness Baselines and Golden Metrics"}
+  - {path: cross-platform-ci-and-validation.md, title: "Cross-Platform CI and Validation"}
+  - {path: release-and-packaging.md, title: "Release and Packaging"}
+  - {path: adapter-extensibility.md, title: "Adapter Extensibility"}

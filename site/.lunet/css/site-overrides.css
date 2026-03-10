@@ -1,0 +1,276 @@
+/* PrintingTools brand polish on top of Lunet template defaults. */
+
+:root {
+  --pt-accent: #1d63d8;
+  --pt-accent-strong: #0f469f;
+  --pt-accent-soft: #eaf2ff;
+  --pt-highlight: #5fa6ff;
+  --pt-card-radius: 14px;
+  --pt-shadow-soft: 0 10px 30px rgba(10, 20, 30, 0.08);
+  --pt-shadow-strong: 0 14px 34px rgba(10, 20, 30, 0.16);
+}
+
+:root[data-bs-theme="dark"] {
+  --pt-accent: #73b3ff;
+  --pt-accent-strong: #a6ceff;
+  --pt-accent-soft: rgba(29, 99, 216, 0.18);
+  --pt-highlight: #c7e0ff;
+  --pt-shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.28);
+  --pt-shadow-strong: 0 16px 38px rgba(0, 0, 0, 0.4);
+}
+
+body {
+  min-height: 100vh;
+  background-image: radial-gradient(circle at top right, color-mix(in srgb, var(--pt-accent) 10%, transparent), transparent 42%);
+}
+
+#lunet {
+  max-width: 1460px;
+}
+
+#lunet .lunet-logo {
+  width: auto;
+  height: 76px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+}
+
+#lunet .navbar {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--bs-border-color) 82%, transparent);
+  backdrop-filter: saturate(125%) blur(6px);
+}
+
+#lunet .navbar .nav-link {
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+#lunet .navbar .nav-link:hover {
+  background: color-mix(in srgb, var(--pt-accent) 14%, transparent);
+}
+
+#lunet li.nav-item.active {
+  border-bottom: none;
+}
+
+#lunet li.nav-item.active > .nav-item-row > .nav-link {
+  color: var(--pt-accent-strong);
+  background: color-mix(in srgb, var(--pt-accent) 16%, transparent);
+}
+
+#lunet .navbar .lunet-search .input-group {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bs-border-color) 75%, transparent);
+  border-radius: 0.7rem;
+}
+
+#lunet .lunet-theme-toggle {
+  border-radius: 0.7rem;
+}
+
+#lunet .navbar-right .btn-info {
+  border-radius: 0.7rem;
+  border-color: color-mix(in srgb, var(--pt-accent) 45%, var(--bs-border-color));
+  background: color-mix(in srgb, var(--pt-accent) 28%, transparent);
+  color: var(--bs-body-color);
+}
+
+#lunet .navbar-right .btn-info:hover {
+  background: color-mix(in srgb, var(--pt-accent) 40%, transparent);
+}
+
+#lunet .menu,
+#lunet .breadcrumb {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+#lunet .menu .menu {
+  margin-top: 0.35rem;
+  margin-left: 0.8rem;
+  padding-left: 0.8rem;
+  border-left: 1px solid color-mix(in srgb, var(--bs-border-color) 75%, transparent);
+}
+
+#lunet .menu-item {
+  margin: 0.1rem 0;
+}
+
+#lunet .menu-link,
+#lunet .breadcrumb-link {
+  text-decoration: none;
+}
+
+#lunet .menu-link:hover,
+#lunet .breadcrumb-link:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+#lunet .menu-item.active > .menu-item-row > .menu-link {
+  font-weight: 600;
+  color: var(--pt-accent-strong);
+}
+
+#docs-sidebar-menu.menu-sidebar,
+#docs-sidebar-toc.menu-sidebar {
+  max-height: calc(100vh - 6.25rem);
+  overflow: auto;
+  padding-bottom: 1rem;
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 80%, transparent);
+  border-radius: var(--pt-card-radius);
+  box-shadow: var(--pt-shadow-soft);
+}
+
+#docs-sidebar-menu .offcanvas-body,
+#docs-sidebar-toc {
+  background: color-mix(in srgb, var(--bs-body-bg) 92%, var(--pt-accent-soft));
+}
+
+#docs-sidebar-toc .js-toc {
+  font-size: 0.92rem;
+}
+
+#docs-sidebar-toc .toc-list {
+  margin: 0;
+  padding-left: 0.85rem;
+  list-style: none;
+}
+
+#docs-sidebar-toc .toc-link {
+  text-decoration: none;
+  color: var(--bs-body-color);
+}
+
+#docs-sidebar-toc .is-active-link {
+  font-weight: 700;
+  color: var(--pt-accent-strong);
+}
+
+#lunet .lunet-articles .js-toc-content,
+#lunet .lunet-api .js-toc-content {
+  background: color-mix(in srgb, var(--bs-body-bg) 94%, var(--pt-accent-soft));
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 80%, transparent);
+  border-radius: var(--pt-card-radius);
+  padding: 1.25rem 1.3rem 1.4rem;
+  box-shadow: var(--pt-shadow-soft);
+}
+
+#lunet h1 {
+  letter-spacing: -0.02em;
+}
+
+#lunet h2 {
+  margin-top: 1.6rem;
+}
+
+#lunet h1,
+#lunet h2,
+#lunet h3 {
+  scroll-margin-top: 7rem;
+}
+
+#lunet blockquote {
+  border-radius: 0.6rem;
+  border-left-width: 4px;
+}
+
+#lunet pre[class*="language-"] {
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 80%, transparent);
+  border-radius: 0.8rem;
+}
+
+#lunet :focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--pt-highlight) 70%, white);
+  outline-offset: 2px;
+}
+
+.lunet-home .container {
+  max-width: 1120px;
+}
+
+.pt-hero {
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 80%, transparent);
+  border-radius: 18px;
+  padding: clamp(1.4rem, 2vw, 2rem);
+  background-image: linear-gradient(140deg, color-mix(in srgb, var(--pt-accent) 20%, transparent), transparent 42%);
+  box-shadow: var(--pt-shadow-strong);
+}
+
+.pt-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pt-accent-strong);
+}
+
+.pt-hero .lead {
+  max-width: 70ch;
+}
+
+.pt-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.pt-link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.2rem;
+}
+
+.pt-link-grid--wide {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.pt-link-card {
+  display: block;
+  height: 100%;
+  padding: 1rem 1rem 0.85rem;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid color-mix(in srgb, var(--bs-border-color) 82%, transparent);
+  border-radius: var(--pt-card-radius);
+  background: color-mix(in srgb, var(--bs-body-bg) 95%, var(--pt-accent-soft));
+  box-shadow: var(--pt-shadow-soft);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.pt-link-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--pt-shadow-strong);
+  border-color: color-mix(in srgb, var(--pt-accent) 36%, var(--bs-border-color));
+}
+
+.pt-link-card p {
+  margin: 0.65rem 0 0;
+  color: var(--bs-secondary-color);
+}
+
+.pt-link-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+  color: var(--pt-accent-strong);
+}
+
+@media (max-width: 991px) {
+  #docs-sidebar-menu.menu-sidebar,
+  #docs-sidebar-toc.menu-sidebar {
+    max-height: none;
+  }
+
+  .pt-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

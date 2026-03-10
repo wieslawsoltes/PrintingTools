@@ -1,0 +1,6 @@
+guides:
+  - {path: readme.md, title: "Guides"}
+  - {path: page-setup-and-preview-ui.md, title: "Page Setup and Preview UI"}
+  - {path: samples-and-harnesses.md, title: "Samples and Harnesses"}
+  - {path: migration-from-wpf.md, title: "Migration from WPF"}
+  - {path: troubleshooting.md, title: "Troubleshooting"}

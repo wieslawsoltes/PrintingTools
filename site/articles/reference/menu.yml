@@ -1,0 +1,9 @@
+reference:
+  - {path: readme.md, title: "Reference"}
+  - {path: package-selection-and-assemblies.md, title: "Package Selection and Assemblies"}
+  - {path: api-coverage-index.md, title: "API Coverage Index"}
+  - {path: namespace-printingtools-core.md, title: "Namespace: PrintingTools.Core"}
+  - {path: namespace-printingtools-platforms.md, title: "Namespace: Platform Packages"}
+  - {path: namespace-printingtools-ui.md, title: "Namespace: PrintingTools.UI"}
+  - {path: lunet-docs-pipeline.md, title: "Lunet Docs Pipeline"}
+  - {path: license.md, title: "License"}
