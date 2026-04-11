@@ -1,8 +1,7 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <VersionPrefix Condition="'$(VersionPrefix)' == ''">0.1.0</VersionPrefix>
-    <VersionSuffix Condition="'$(VersionSuffix)' == ''">alpha.1</VersionSuffix>
+    <VersionPrefix Condition="'$(VersionPrefix)' == ''">12.0.0</VersionPrefix>
     <Authors Condition="'$(Authors)' == ''">PrintingTools Contributors</Authors>
     <Company Condition="'$(Company)' == ''">PrintingTools</Company>
     <Copyright Condition="'$(Copyright)' == ''">Copyright © 2026 PrintingTools Contributors</Copyright>
