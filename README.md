@@ -66,7 +66,7 @@ The adapters register through `PrintingToolsOptions.AdapterFactory`. Configure `
 
 ### Prerequisites
 
-- [.NET SDK 10.0.100-rc.2](https://github.com/wieslawsoltes/PrintingTools/blob/main/global.json) with prerelease support enabled.
+- [.NET SDK 10.0.201](https://github.com/wieslawsoltes/PrintingTools/blob/main/global.json).
 - Windows: Win32 spooler available and XPS support enabled.
 - macOS: macOS 14+ with Xcode command line tools for building the native preview bridge.
 - Linux: CUPS 2.3+, `cups-client` (`lp`, `lpoptions`), and GTK 3/4 libraries for native dialog integration.

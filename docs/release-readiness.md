@@ -10,9 +10,9 @@ This checklist captures what is already in place for an initial public release o
 - ✅ Release workflow pushes packages to nuget.org when `NUGET_API_KEY` is present and publishes a GitHub release with packaged artifacts.
 
 ## Outstanding Before First Release
-- 🔲 Set the final semantic version via `VersionPrefix`/`PackageVersion` in `Directory.Build.props` (current default is `0.1.0`).
+- 🔲 Set the final semantic version via `VersionPrefix`/`PackageVersion` in `Directory.Build.props` (current default is `12.0.0`).
 - 🔲 Populate `NUGET_API_KEY` repository secret (required for automated NuGet publishing).
-- 🔲 Decide on target .NET SDK (currently `10.0.100-rc.2`; upgrade to GA before RTM or note preview dependency in release notes).
+- 🔲 Decide on target .NET SDK (currently `10.0.201`; keep release notes aligned if this changes again before RTM).
 - 🔲 Run platform harnesses (`linux`, `macOS`, `windows`) to produce fresh metrics/PDFs and confirm CI parity.
 - 🔲 Draft release notes / changelog entry summarising features, supported platforms, and known limitations.
 - 🔲 Verify macOS native bridge signing/notarisation requirements if distributing outside development environments.
