@@ -1,14 +1,19 @@
 <Project>
+  <PropertyGroup>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageVersion Include="Avalonia" Version="11.3.6" />
-    <PackageVersion Include="Avalonia.Desktop" Version="11.3.6" />
-    <PackageVersion Include="Avalonia.Headless" Version="11.3.6" />
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="11.3.6" />
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="11.3.6" />
-    <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.6" />
-    <PackageVersion Include="Avalonia.Skia" Version="11.3.6" />
+    <PackageVersion Include="Avalonia" Version="12.0.0" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.0.0" />
+    <PackageVersion Include="Avalonia.Headless" Version="12.0.0" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.0.0" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.0.0" />
+    <PackageVersion Include="Avalonia.Skia" Version="12.0.0" />
+    <PackageVersion Include="ProDiagnostics" Version="12.0.0" />
     <PackageVersion Include="GtkSharp" Version="3.24.24.95" />
-    <PackageVersion Include="SkiaSharp" Version="3.119.0" />
+    <PackageVersion Include="SkiaSharp" Version="3.119.3-preview.1.1" />
+    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.92.0" />
     <PackageVersion Include="xunit" Version="2.5.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
