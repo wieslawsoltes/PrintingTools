@@ -4,10 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:PrintingTools.UI.ViewModels;assembly=PrintingTools.UI"
              x:Class="PrintingTools.UI.Controls.PageSetupDialog"
+             x:DataType="viewModels:PageSetupViewModel"
              mc:Ignorable="d">
-    <UserControl.DataContext>
+    <Design.DataContext>
         <viewModels:PageSetupViewModel />
-    </UserControl.DataContext>
+    </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
         <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
@@ -21,10 +22,8 @@
             <StackPanel>
                 <TextBlock Text="Orientation" FontWeight="SemiBold"/>
                 <ComboBox Width="160"
-                          SelectedItem="{Binding SelectedOrientation}">
-                    <ComboBoxItem Content="Portrait" />
-                    <ComboBoxItem Content="Landscape" />
-                </ComboBox>
+                          ItemsSource="{Binding Orientations}"
+                          SelectedItem="{Binding SelectedOrientation}"/>
             </StackPanel>
 
             <StackPanel>
@@ -174,8 +173,7 @@
                         Command="{Binding CancelCommand}"/>
                 <Button Content="Apply"
                         Width="90"
-                        Command="{Binding ApplyCommand}"
-                        IsEnabled="{Binding CanApply}"/>
+                        Command="{Binding ApplyCommand}"/>
             </StackPanel>
         </StackPanel>
     </Grid>

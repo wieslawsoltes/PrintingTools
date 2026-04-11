@@ -37,6 +37,7 @@ public sealed class PageSetupViewModel : INotifyPropertyChanged
         };
         _selectedPaperSize = PaperSizes[0];
         _selectedOrientation = PageOrientation.Portrait;
+        Orientations = Enum.GetValues<PageOrientation>();
         LayoutKinds = Enum.GetValues<PrintLayoutKind>();
         NUpOrders = Enum.GetValues<NUpPageOrder>();
 
@@ -45,6 +46,8 @@ public sealed class PageSetupViewModel : INotifyPropertyChanged
     }
 
     public ObservableCollection<Size> PaperSizes { get; }
+
+    public IReadOnlyList<PageOrientation> Orientations { get; }
 
     public IReadOnlyList<PrintLayoutKind> LayoutKinds { get; }
 
