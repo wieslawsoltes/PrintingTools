@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+#if DEBUG
 using Avalonia.Diagnostics;
+#endif
 using Avalonia.Markup.Xaml;
 
 namespace AvaloniaSample;
