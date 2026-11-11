@@ -11,6 +11,7 @@ public readonly struct LayoutMetadata
 {
     private LayoutMetadata(
         PrintLayoutKind kind,
+        PageOrientation orientation,
         int nUpRows,
         int nUpColumns,
         NUpPageOrder nUpOrder,
@@ -19,6 +20,7 @@ public readonly struct LayoutMetadata
         int posterColumns)
     {
         Kind = kind;
+        Orientation = orientation;
         NUpRows = Math.Max(1, nUpRows);
         NUpColumns = Math.Max(1, nUpColumns);
         NUpOrder = nUpOrder;
@@ -26,9 +28,17 @@ public readonly struct LayoutMetadata
         PosterRows = Math.Max(1, posterRows);
         PosterColumns = Math.Max(1, posterColumns);
     }
-
+    
     public PrintLayoutKind Kind { get; }
-
+    
+    /// <summary>
+    /// Page orientation carried through from <see cref="PrintTicketModel.Orientation"/>.
+    /// Windows adapters use this to set <c>DEVMODE.dmOrientation</c> so the driver submits
+    /// the sheet in the same direction the XPS package was rendered in; without it,
+    /// correctly-oriented XPS pages get rotated/clipped by a portrait-default driver.
+    /// </summary>
+    public PageOrientation Orientation { get; }
+    
     public int NUpRows { get; }
 
     public int NUpColumns { get; }
@@ -73,12 +83,13 @@ public readonly struct LayoutMetadata
         }
 
         var bookletBindLongEdge = ParseBool(extensions, "layout.booklet.bindLongEdge", defaultValue: true);
-
+        
         var posterRows = ParseInt(extensions, "layout.poster.rows", defaultValue: 1);
         var posterColumns = ParseInt(extensions, "layout.poster.columns", defaultValue: 1);
-
+        
         return new LayoutMetadata(
             kind,
+            ticket.Orientation,
             nUpRows,
             nUpColumns,
             nUpOrder,
