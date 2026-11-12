@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Skia.Helpers;
@@ -118,20 +119,44 @@ internal sealed class SkiaXpsExporter
         }
         else
         {
-            var dipsToPoints = (float)(PointsPerInch / DipsPerInch);
-            canvas.Scale(dipsToPoints);
-            canvas.Translate((float)metrics.ContentRect.X, (float)metrics.ContentRect.Y);
-            canvas.Scale((float)metrics.ContentScale);
-            canvas.Translate(
-                (float)(-metrics.ContentOffset.X - metrics.VisualBounds.X),
-                (float)(-metrics.ContentOffset.Y - metrics.VisualBounds.Y));
-
+            // Same as SkiaVectorPageRenderer: the page transforms and the DIP -> point conversion
+            // both go on the DrawingContext PushTransform stack (the XPS canvas is point-based too,
+            // BeginPage receives point sizes); a scale concatenated onto the canvas beforehand is
+            // discarded when DrawingContextImpl rewrites the canvas matrix.
+            var unitScale = PointsPerInch / DipsPerInch;
             PrintDiagnostics.Report(
                 DiagnosticsCategory,
                 $"Rendering XPS page {index}",
-                context: new { Index = index, Tag = tag });
+                context: new
+                {
+                    Index = index,
+                    Tag = (page.Visual as Control)?.Tag,
+                    UnitScale = unitScale,
+                    metrics.PageSize,
+                    metrics.ContentRect,
+                    metrics.VisualBounds,
+                    metrics.ContentOffset,
+                    metrics.ContentScale
+                });
 
-            DrawingContextHelper.RenderAsync(canvas, page.Visual, page.Visual.Bounds, metrics.Dpi).GetAwaiter().GetResult();
+            if (SkiaCanvasDrawingContext.TryCreate(canvas, new Vector(DipsPerInch, DipsPerInch), out var drawingContext, out var wrapperFailure))
+            {
+                using (drawingContext)
+                using (drawingContext!.PushTransform(Matrix.CreateScale(unitScale, unitScale)))
+                {
+                    PrintPageRenderer.RenderToDrawingContext(drawingContext!, page, metrics);
+                }
+            }
+            else
+            {
+                // Without the wrapper the RenderAsync replay carries neither the page transforms nor
+                // the unit conversion, so the output is oversized, but better than a blank page.
+                PrintDiagnostics.Report(
+                    DiagnosticsCategory,
+                    "Skia canvas wrapper unavailable; rendered without page-level transforms.",
+                    context: new { Index = index, Failure = wrapperFailure });
+                DrawingContextHelper.RenderAsync(canvas, page.Visual, page.Visual.Bounds, new Vector(DipsPerInch, DipsPerInch)).GetAwaiter().GetResult();
+            }
         }
 
         document.EndPage();

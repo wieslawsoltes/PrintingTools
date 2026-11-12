@@ -11,6 +11,7 @@ namespace PrintingTools.Windows.Interop;
 internal static partial class Win32NativeMethods
 {
     private const string WinSpool = "winspool.drv";
+    private const string XpsPrint = "xpsprint.dll";
 
     [Flags]
     internal enum PrinterEnumFlags : uint
@@ -231,6 +232,19 @@ internal static partial class Win32NativeMethods
     [LibraryImport(WinSpool, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, uint dwCount, out uint dwWritten);
+
+    [LibraryImport(XpsPrint, StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial int StartXpsPrintJob(
+        string printerName,
+        string? jobName,
+        string? outputFileName,
+        IntPtr progressEvent,
+        IntPtr completionEvent,
+        IntPtr printablePagesOn,
+        uint printablePagesOnCount,
+        out IntPtr xpsPrintJob,
+        out IntPtr documentStream,
+        IntPtr printTicketStream);
 
     [LibraryImport(WinSpool, EntryPoint = "GetJobW", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

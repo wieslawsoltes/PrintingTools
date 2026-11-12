@@ -774,6 +774,25 @@ public static class PrintPaginationUtilities
         var maxOffset = Math.Max(visualHeight - availableHeight, 0);
         var basePageBreak = page.IsPageBreakAfter;
 
+        // Splitting a visual across pages is worth the full set of numbers: page size, margins,
+        // content rect, scale and offset plus the two heights are what separates an over-tall layout
+        // from a wrong scale factor or a shrinking available height.
+        PrintDiagnostics.Report(
+            nameof(PrintPaginationUtilities),
+            "Paginated a visual into multiple pages.",
+            context: new
+            {
+                metrics.PageSize,
+                metrics.Margins,
+                metrics.ContentRect,
+                VisualBounds = metrics.VisualBounds,
+                metrics.ContentScale,
+                metrics.ContentOffset,
+                remainingHeight,
+                availableHeight,
+                pageCount
+            });
+
         for (var index = 0; index < pageCount; index++)
         {
             var offsetY = baseOffset.Y + index * availableHeight;
