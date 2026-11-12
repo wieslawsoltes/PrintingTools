@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.Skia.Helpers;
 using PrintingTools.Core;
 using PrintingTools.Core.Rendering;
@@ -77,21 +78,52 @@ internal sealed class SkiaVectorPageRenderer : IVectorPageRenderer
         using var canvas = document.BeginPage(width, height);
         canvas.Clear(SKColors.White);
 
-        var dipsToPoints = (float)(PointsPerInch / DipsPerInch);
-        canvas.Scale(dipsToPoints);
-        canvas.Translate((float)metrics.ContentRect.X, (float)metrics.ContentRect.Y);
-        canvas.Scale((float)metrics.ContentScale);
-        canvas.Translate(
-            (float)(-metrics.ContentOffset.X - metrics.VisualBounds.X),
-            (float)(-metrics.ContentOffset.Y - metrics.VisualBounds.Y));
-
+        // Page-level transforms take the same path as the preview: the canvas is wrapped into a
+        // DrawingContext and handed to PrintPageRenderer.RenderToDrawingContext, so translation,
+        // scale and slice offset all travel on the PushTransform stack. The DIP -> point conversion
+        // has to ride on that same stack: DrawingContextImpl rewrites the canvas matrix from its own
+        // transform stack on every draw, so a scale concatenated onto the canvas beforehand is
+        // discarded, and WrapSkiaCanvas only records dpi into CreateInfo.Dpi (consumed by
+        // intermediate surfaces) without setting ScaleDrawingToDpi. Without the conversion content
+        // lands on the point-based page at 1 DIP = 1 point, i.e. 133% oversized, and its right and
+        // bottom edges are pushed off the media box.
         var tag = (page.Visual as Control)?.Tag;
+        var unitScale = PointsPerInch / DipsPerInch;
         PrintDiagnostics.Report(
             DiagnosticsCategory,
             $"Rendering PDF page {index}",
-            context: new { Index = index, Tag = tag });
+            context: new
+            {
+                Index = index,
+                Tag = tag,
+                UnitScale = unitScale,
+                metrics.PageSize,
+                metrics.ContentRect,
+                metrics.VisualBounds,
+                metrics.ContentOffset,
+                metrics.ContentScale
+            });
 
-        DrawingContextHelper.RenderAsync(canvas, page.Visual, page.Visual.Bounds, metrics.Dpi).GetAwaiter().GetResult();
+        if (SkiaCanvasDrawingContext.TryCreate(canvas, new Vector(DipsPerInch, DipsPerInch), out var drawingContext, out var wrapperFailure))
+        {
+            using (drawingContext)
+            using (drawingContext!.PushTransform(Matrix.CreateScale(unitScale, unitScale)))
+            {
+                PrintPageRenderer.RenderToDrawingContext(drawingContext!, page, metrics);
+            }
+        }
+        else
+        {
+            // Without the wrapper the page falls back to a direct RenderAsync replay, which carries
+            // neither the page transforms nor the unit conversion, so the output is oversized but
+            // still better than a blank page. The diagnostic records the reflection failure so it can
+            // be re-checked when Avalonia is upgraded.
+            PrintDiagnostics.Report(
+                DiagnosticsCategory,
+                "Skia canvas wrapper unavailable; rendered without page-level transforms.",
+                context: new { Index = index, Failure = wrapperFailure });
+            DrawingContextHelper.RenderAsync(canvas, page.Visual, page.Visual.Bounds, new Vector(DipsPerInch, DipsPerInch)).GetAwaiter().GetResult();
+        }
 
         document.EndPage();
     }

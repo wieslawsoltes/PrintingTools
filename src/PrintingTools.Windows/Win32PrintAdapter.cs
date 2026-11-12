@@ -615,6 +615,7 @@ internal sealed class Win32PrintAdapter : IPrintAdapter
                         context: new
                         {
                             Printer = printerName,
+                            layout.Orientation,
                             layout.Kind,
                             layout.NUpRows,
                             layout.NUpColumns,
@@ -641,6 +642,10 @@ internal sealed class Win32PrintAdapter : IPrintAdapter
             // closed, the print processor and printer driver render the document. Spooler RAW
             // passthrough instead forwards the package bytes verbatim to the port, which no
             // printer can interpret (the job reports "Printed" while producing zero output).
+            // The job-level ticket stream is passed as NULL instead of being requested by address:
+            // an "out" ticket stream made a physical KM queue drop the job entirely, with or
+            // without ticket content, while NULL is a documented form of the API. Orientation and
+            // copy count keep travelling on the DEVMODE channel.
             var hresult = Win32NativeMethods.StartXpsPrintJob(
                 printerName,
                 documentName,
@@ -700,7 +705,7 @@ internal sealed class Win32PrintAdapter : IPrintAdapter
             PrintDiagnostics.Report(
                 DiagnosticsCategory,
                 "Submitted XPS package via StartXpsPrintJob.",
-                context: new { Printer = printerName, Bytes = payload.Length, JobId = jobId, layout.Kind });
+                context: new { Printer = printerName, Bytes = payload.Length, JobId = jobId, layout.Kind, layout.Orientation });
 
             return true;
         }
@@ -789,6 +794,10 @@ internal sealed class Win32PrintAdapter : IPrintAdapter
         var size = Win32NativeMethods.DocumentProperties(IntPtr.Zero, printerHandle, printerName, IntPtr.Zero, IntPtr.Zero, 0);
         if (size <= 0)
         {
+            PrintDiagnostics.Report(
+                DiagnosticsCategory,
+                "TryCreateLayoutDevMode: DEVMODE size query failed; continuing with default DEVMODE.",
+                context: new { Printer = printerName, Size = size, Error = Win32NativeMethods.GetLastErrorMessage() });
             return false;
         }
 
@@ -797,6 +806,10 @@ internal sealed class Win32PrintAdapter : IPrintAdapter
 
         if (Win32NativeMethods.DocumentProperties(IntPtr.Zero, printerHandle, printerName, originalDevMode, IntPtr.Zero, Win32NativeMethods.DM_OUT_BUFFER | Win32NativeMethods.DM_OUT_DEFAULT) < 0)
         {
+            PrintDiagnostics.Report(
+                DiagnosticsCategory,
+                "TryCreateLayoutDevMode: reading default DEVMODE failed; continuing with default DEVMODE.",
+                context: new { Printer = printerName, Error = Win32NativeMethods.GetLastErrorMessage() });
             Marshal.FreeHGlobal(originalDevMode);
             Marshal.FreeHGlobal(updatedDevMode);
             originalDevMode = IntPtr.Zero;
@@ -810,19 +823,21 @@ internal sealed class Win32PrintAdapter : IPrintAdapter
         }
 
         var devMode = Marshal.PtrToStructure<Win32NativeMethods.DEVMODE>(updatedDevMode);
-        if (!ApplyLayoutToDevMode(layout, ref devMode))
-        {
-            Marshal.FreeHGlobal(originalDevMode);
-            Marshal.FreeHGlobal(updatedDevMode);
-            originalDevMode = IntPtr.Zero;
-            updatedDevMode = IntPtr.Zero;
-            return false;
-        }
+
+        // The mapping has no failure branch: it either rewrites the orientation / duplex / N-up
+        // fields or leaves them as they are when the current values are already equivalent. Treating
+        // "nothing to change" as a failure used to skip the whole DEVMODE submission, which made
+        // portrait jobs report "could not be mapped" for no reason.
+        ApplyLayoutToDevMode(layout, ref devMode);
 
         Marshal.StructureToPtr(devMode, updatedDevMode, fDeleteOld: false);
 
         if (Win32NativeMethods.DocumentProperties(IntPtr.Zero, printerHandle, printerName, updatedDevMode, updatedDevMode, Win32NativeMethods.DM_IN_BUFFER | Win32NativeMethods.DM_OUT_BUFFER) < 0)
         {
+            PrintDiagnostics.Report(
+                DiagnosticsCategory,
+                "TryCreateLayoutDevMode: driver rejected the updated DEVMODE; continuing with default DEVMODE.",
+                context: new { Printer = printerName, Error = Win32NativeMethods.GetLastErrorMessage() });
             Marshal.FreeHGlobal(originalDevMode);
             Marshal.FreeHGlobal(updatedDevMode);
             originalDevMode = IntPtr.Zero;

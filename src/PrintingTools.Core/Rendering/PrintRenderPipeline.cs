@@ -81,12 +81,23 @@ public static class PrintRenderPipeline
 
     private static PrintPageMetrics EnsureMetrics(PrintPage page, Vector targetDpi)
     {
-        if (page.Metrics is { } metrics && NearlyEquals(metrics.Dpi, targetDpi))
+        var existing = page.Metrics;
+        if (existing is not null && NearlyEquals(existing.Dpi, targetDpi))
         {
-            return metrics;
+            return existing;
         }
 
-        return PrintPageMetrics.Create(page.Visual, page.Settings, targetDpi);
+        var recreated = PrintPageMetrics.Create(page.Visual, page.Settings, targetDpi);
+
+        // Pagination slices record where in the content a page starts drawing via ContentOffset.
+        // Recreating the metrics for a different DPI zeroes it, so every split page would render the
+        // same full content; the offset has to be carried over to the recreated metrics.
+        if (existing is not null && !existing.ContentOffset.Equals(default(Point)))
+        {
+            recreated = recreated.WithContentOffset(existing.ContentOffset);
+        }
+
+        return recreated;
     }
 
     private static bool NearlyEquals(Vector left, Vector right, double tolerance = 0.1)
